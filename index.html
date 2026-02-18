@@ -444,13 +444,17 @@
 </header>
 <div id="page-rank" class="container page-section active">
 <div class="card" id="boardCaptureArea"> 
-        <div class="card-title">
-            <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-                <span>📊 등급 현황판</span>
-                <button class="mvp-btn" onclick="openMVPModal()" style="margin-left:0;">🏆 MVP 랭킹</button>
-                <button class="mvp-btn" onclick="openAttendanceModal()" style="background:#FF9800; color:white;">📋 대회 참석</button>
+        <div class="card-title" style="flex-wrap:wrap; gap:6px;">
+            <div style="display:flex; flex-direction:column; gap:5px;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span>📊 등급 현황판</span>
+                    <span style="font-size:0.85rem; color:#555; font-weight:normal;" id="realTimeClock"></span>
+                </div>
+                <div style="display:flex; gap:6px;">
+                    <button class="mvp-btn" onclick="openMVPModal()" style="margin-left:0;">🏆 MVP 랭킹</button>
+                    <button class="mvp-btn" id="attendanceBtn" onclick="openAttendanceModal()" style="background:#FF9800; color:white;">📋 대회 참석</button>
+                </div>
             </div>
-            <span style="font-size:0.85rem; color:#555; font-weight:normal;" id="realTimeClock"></span>
         </div>
         <div class="card-subtitle">매월 업데이트되는 우리들의 뜨거운 코트 열정! <span style="font-size:0.8rem; color:var(--court-green);" id="totalMemberCnt"></span></div>
         <div style="font-size:0.8rem; color:#999; text-align:center; margin-bottom:5px;">(각 조 이름을 누르면 등급 변동 내역이 나옵니다)</div>
@@ -1173,6 +1177,21 @@ window.matchHistory = [];
             if(snap.val()) window.tierNames = snap.val();
             renderBoard();
         });
+        
+        // 대회 참석 체크 Firebase 로드 (앱 재시작해도 유지)
+        onValue(ref(db, ROOT + 'clubData/attendanceSet'), (snap) => {
+            const val = snap.val();
+            if (val && Array.isArray(val)) {
+                window.attendanceSet = new Set(val);
+                localStorage.setItem('attendanceSet', JSON.stringify(val));
+            } else if (!val) {
+                // Firebase에 없으면 로컬스토리지 값 유지
+                // (이미 위에서 초기화됨)
+            }
+            // 참석 체크 버튼 상태 업데이트
+            updateAttendanceBtn();
+            renderBoard();
+        });
     }
 
     function updateCurrentTime() {
@@ -1384,6 +1403,9 @@ window.matchHistory = [];
         
         document.getElementById('unassignedArea').style.display = (unassignedList.children.length > 0) ? 'block' : 'none';
         document.getElementById('totalMemberCnt').innerText = `총 ${assignedCount}명`;
+        
+        // 참석 버튼 상태 업데이트
+        if (typeof updateAttendanceBtn === 'function') updateAttendanceBtn();
 
         // 3. 각 기둥에 선수 카드 채워넣기
         TIERS.forEach(t => {
@@ -4121,6 +4143,7 @@ window.executeRestore = (data) => {
 // ============================================================
 // 대회 참석 체크 기능
 // ============================================================
+// attendanceSet은 onload 이전에 로컬스토리지에서 먼저 복원 (Firebase 로드 전 화면에 즉시 반영용)
 window.attendanceSet = new Set(JSON.parse(localStorage.getItem('attendanceSet') || '[]'));
 
 window.openAttendanceModal = () => {
@@ -4156,7 +4179,32 @@ window.openAttendanceModal = () => {
         area.innerHTML += html;
     });
     
+    // 체크박스 변경 시 라벨 스타일 실시간 업데이트
+    area.querySelectorAll('input[type=checkbox]').forEach(cb => {
+        cb.addEventListener('change', () => {
+            const label = cb.closest('label');
+            if (!label) return;
+            label.style.borderColor = cb.checked ? '#FF9800' : '#e0e0e0';
+            label.style.background = cb.checked ? '#FFF3E0' : 'white';
+            const span = label.querySelector('span');
+            if (span) span.style.fontWeight = cb.checked ? '700' : '400';
+        });
+    });
+    
     document.getElementById('attendanceModal').style.display = 'flex';
+};
+
+window.updateAttendanceBtn = () => {
+    const btn = document.getElementById('attendanceBtn');
+    if (!btn) return;
+    const cnt = window.attendanceSet ? window.attendanceSet.size : 0;
+    if (cnt > 0) {
+        btn.textContent = `📋 참석 ${cnt}명`;
+        btn.style.background = '#E65100';
+    } else {
+        btn.textContent = '📋 대회 참석';
+        btn.style.background = '#FF9800';
+    }
 };
 
 window.selectAllAttendance = (select) => {
@@ -4173,12 +4221,15 @@ window.selectAllAttendance = (select) => {
 };
 
 window.clearAllAttendance = () => {
-    if (!confirm('모든 참석 체크를 해제하시겠습니까?')) return;
+    if (!confirm('모든 참석 체크를 초기화하시겠습니까?')) return;
     window.attendanceSet = new Set();
     localStorage.setItem('attendanceSet', '[]');
+    // Firebase에서도 삭제
+    try { set(ref(db, ROOT + 'clubData/attendanceSet'), []); } catch(e) {}
     closeModal('attendanceModal');
+    updateAttendanceBtn();
     renderBoard();
-    renderMemberSelector();
+    if (document.getElementById('match-setup').style.display !== 'none') renderMemberSelector();
 };
 
 window.saveAttendance = () => {
@@ -4187,14 +4238,15 @@ window.saveAttendance = () => {
         newSet.add(cb.dataset.phone);
     });
     window.attendanceSet = newSet;
-    localStorage.setItem('attendanceSet', JSON.stringify([...newSet]));
+    const arr = [...newSet];
+    localStorage.setItem('attendanceSet', JSON.stringify(arr));
+    // Firebase에도 저장 (앱 재시작/다른 기기에서도 유지)
+    try { set(ref(db, ROOT + 'clubData/attendanceSet'), arr); } catch(e) {}
     closeModal('attendanceModal');
+    updateAttendanceBtn();
     renderBoard();
-    // 매치 설정 중이면 memberSelector도 갱신
-    if (document.getElementById('match-setup').style.display !== 'none') {
-        renderMemberSelector();
-    }
-    alert(`✅ ${newSet.size}명 참석 체크 저장 완료!\n등급현황판과 매치 선수 선택에 반영되었습니다.`);
+    if (document.getElementById('match-setup').style.display !== 'none') renderMemberSelector();
+    alert(`✅ ${newSet.size}명 참석 체크 저장 완료!\n앱을 다시 열어도 유지됩니다.`);
 };
 
 // [신규] 입력한 순서대로 게임 시작하는 함수
