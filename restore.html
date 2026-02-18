@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>모던매치 백업 복구</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;margin:0;background:#f5f7fa;color:#263238;}
+    .wrap{max-width:720px;margin:0 auto;padding:24px;}
+    .card{background:#fff;border-radius:16px;padding:20px;box-shadow:0 4px 10px rgba(0,0,0,.06);}
+    .btn{display:inline-block;border:none;border-radius:12px;padding:14px 16px;font-weight:800;cursor:pointer;background:#2E7D32;color:#fff;}
+    .muted{color:#546E7A;line-height:1.6;}
+    code{background:#eef2f6;padding:2px 6px;border-radius:8px;}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h2 style="margin:0 0 10px;">백업 복구</h2>
+      <p class="muted" style="margin:0 0 16px;">
+        이 페이지에서 <b>백업 JSON 파일</b>을 선택하면, 현재 사이트(도메인)의 <code>localStorage</code>에 데이터를 저장합니다.
+        <br/>복구 후 <b>메인 화면(index.html)</b>으로 이동하세요.
+      </p>
+      <input id="file" type="file" accept=".json,application/json" style="display:none" />
+      <button class="btn" id="pick">백업 파일 선택</button>
+      <div id="log" class="muted" style="margin-top:14px;"></div>
+    </div>
+  </div>
+
+  <script>
+    const pick = document.getElementById('pick');
+    const fileInput = document.getElementById('file');
+    const log = document.getElementById('log');
+
+    function setLS(key, value){
+      try{ localStorage.setItem(key, JSON.stringify(value)); }
+      catch(e){ console.error(e); throw e; }
+    }
+
+    function restore(obj){
+      setLS('members', obj.members || []);
+      setLS('tennisHistory', obj.tennisHistory || []);
+      setLS('rankingData', obj.rankingData || {});
+      setLS('teamTournaments', obj.teamTournaments || []);
+      setLS('teamPresets', obj.teamPresets || []);
+      setLS('mvpManualLogs', obj.mvpManualLogs || []);
+
+      // 호환 키(앱 버전에 따라 다를 수 있어 같이 저장)
+      setLS('players', obj.members || []);
+      setLS('matchHistory', obj.tennisHistory || []);
+    }
+
+    pick.addEventListener('click', ()=> fileInput.click());
+
+    fileInput.addEventListener('change', ()=>{
+      const f = fileInput.files && fileInput.files[0];
+      if(!f) return;
+      const reader = new FileReader();
+      reader.onload = ()=>{
+        try{
+          const obj = JSON.parse(reader.result);
+          restore(obj);
+          log.innerHTML = '✅ 복구 완료! 이제 메인 페이지로 이동해서 새로고침(F5) 하세요.';
+        }catch(e){
+          console.error(e);
+          log.innerHTML = '❌ 복구 실패: ' + (e && e.message ? e.message : e);
+        }
+      };
+      reader.readAsText(f, 'utf-8');
+    });
+  </script>
+</body>
+</html>
