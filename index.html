@@ -675,6 +675,8 @@
     display:flex; align-items:center; gap:10px; min-width:0;
   }
   body.modern-gimhae-ultra-v2 .brand-logo-ball {
+  object-fit:cover;
+  background:none;
     width:44px; height:44px; border-radius:50%; flex:0 0 44px;
     display:flex; align-items:center; justify-content:center;
     background: radial-gradient(circle at 30% 30%, #ffe89a 0 18%, #d4a017 19% 80%, #a77b10 81% 100%);
@@ -786,7 +788,9 @@
     body.modern-gimhae-ultra-v2 .header-pills { justify-content:flex-start; }
   }
   @media (max-width: 520px) {
-    body.modern-gimhae-ultra-v2 .brand-logo-ball { width:40px; height:40px; flex-basis:40px; }
+    body.modern-gimhae-ultra-v2 .brand-logo-ball {
+  object-fit:cover;
+  background:none; width:40px; height:40px; flex-basis:40px; }
     body.modern-gimhae-ultra-v2 .editable-title { font-size:1rem; }
     body.modern-gimhae-ultra-v2 .hero-stats { grid-template-columns:1fr 1fr; }
     body.modern-gimhae-ultra-v2 .hero-stat { min-height:66px; padding:9px 10px; }
@@ -5417,9 +5421,10 @@ window.editPlayerInMatch = (matchId, teamNum, pIdx, newName) => {
       brandRow.className = 'header-brand-row';
       const left = document.createElement('div');
       left.className = 'header-brand-left';
-      const logo = document.createElement('div');
+      const logo = document.createElement('img');
       logo.className = 'brand-logo-ball';
-      logo.textContent = '🎾';
+      logo.src = './icon-192.png';
+        logo.alt = '모던 테니스 클럽';
       const stack = document.createElement('div');
       stack.className = 'brand-stack';
       if (title) stack.appendChild(title);
