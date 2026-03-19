@@ -9,8 +9,28 @@
 <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>모던 테니스매니저 [Online] 🎾</title>
+    <script>
+      const APP_VERSION = "2026-03-19-modern-gimhae-ultra-v6-responsive-result-bracket";
+      (function forceUpdateOnNewVersion() {
+        const key = "APP_VERSION_MODERN_GIMHAE";
+        const prev = localStorage.getItem(key);
+        if (prev !== APP_VERSION) {
+          localStorage.setItem(key, APP_VERSION);
+          const bust = () => {
+            const url = new URL(location.href);
+            url.searchParams.set("v", Date.now().toString());
+            location.replace(url.toString());
+          };
+          if ("caches" in window) {
+            caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k)))).catch(()=>{}).finally(bust);
+          } else {
+            bust();
+          }
+        }
+      })();
+    </script>
     
-    <meta name="theme-color" content="#68A658">
+    <meta name="theme-color" content="#0f1e3a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
@@ -426,7 +446,857 @@
         
         .clickable-name { color: #1565C0; text-decoration: none; font-weight: 600; cursor: pointer; }
         .clickable-name:hover { text-decoration: underline; }
+    
+
+        /* ===== Gimhae premium skin upgrade ===== */
+        :root {
+            --gm-primary:#0f1e3a;
+            --gm-primary-dark:#091225;
+            --gm-primary-light:#1b2f5a;
+            --gm-accent:#d4a017;
+            --gm-accent-dark:#b89014;
+            --gm-bg:#f4f6fb;
+            --gm-bg2:#e9eef7;
+            --gm-panel:#ffffff;
+            --gm-panel-2:#f7f9fd;
+            --gm-border:#d7deea;
+            --gm-text:#0c1628;
+            --gm-sub:#4d5f78;
+            --gm-shadow:0 10px 28px rgba(15,30,58,.12);
+            --gm-shadow-sm:0 4px 12px rgba(15,30,58,.08);
+        }
+        body {
+            background: linear-gradient(180deg, var(--gm-bg) 0%, var(--gm-bg2) 100%);
+            color: var(--gm-text);
+            padding-bottom: 96px;
+        }
+        header {
+            background: linear-gradient(135deg, var(--gm-primary-dark) 0%, var(--gm-primary) 55%, var(--gm-primary-light) 100%);
+            padding: 14px 16px;
+            box-shadow: 0 6px 24px rgba(0,0,0,.26);
+            border-bottom: 1px solid rgba(255,255,255,.08);
+        }
+        .app-title { align-items:flex-end; gap:8px; }
+        .editable-title {
+            font-size:1.2rem; font-weight:800; letter-spacing:-.03em;
+            text-shadow: 0 1px 1px rgba(0,0,0,.18);
+        }
+        .ver-sign { color: #ffd86b; font-size: 1.15rem; opacity: 1; margin-left: 2px; }
+        .header-btns { gap: 7px; }
+        .btn-icon {
+            width: 40px; height: 40px; border-radius: 12px;
+            background: rgba(255,255,255,.08);
+            border: 1px solid rgba(255,255,255,.14);
+            backdrop-filter: blur(2px);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+        }
+        .btn-icon:hover,.btn-icon:focus { background: rgba(255,255,255,.16); }
+        .container { max-width: 920px; padding: 16px 14px 12px; }
+        .page-section { animation: fadeIn .25s ease; }
+        .section-hero {
+            background: linear-gradient(135deg, rgba(9,18,37,.98), rgba(15,30,58,.94) 60%, rgba(27,47,90,.92));
+            color:#fff; border-radius:18px; padding:18px 18px 16px; margin-bottom:16px;
+            box-shadow: var(--gm-shadow); position: relative; overflow:hidden;
+        }
+        .section-hero::before {
+            content:""; position:absolute; inset:auto -40px -40px auto; width:150px; height:150px;
+            background: radial-gradient(circle, rgba(212,160,23,.34) 0%, rgba(212,160,23,0) 70%);
+        }
+        .section-hero::after {
+            content:""; position:absolute; top:-28px; right:-18px; width:92px; height:92px; border-radius:50%;
+            border: 2px solid rgba(255,255,255,.08);
+            box-shadow: 0 0 0 10px rgba(255,255,255,.03), 0 0 0 22px rgba(255,255,255,.02);
+        }
+        .section-hero-title { font-size: 1.12rem; font-weight: 800; letter-spacing:-.02em; position:relative; z-index:1; }
+        .section-hero-desc { font-size: .84rem; margin-top: 5px; color: rgba(255,255,255,.78); position:relative; z-index:1; }
+        .section-hero-badge {
+            display:inline-flex; align-items:center; gap:6px; margin-top:10px; padding:6px 10px; border-radius:999px;
+            background: rgba(212,160,23,.16); border:1px solid rgba(255,216,107,.35); color:#ffe29a;
+            font-size:.74rem; font-weight:700; position:relative; z-index:1;
+        }
+        .card, .modal, .a4-paper {
+            background: linear-gradient(180deg, #fff 0%, var(--gm-panel-2) 100%);
+            border: 1px solid var(--gm-border);
+            border-radius: 18px;
+            box-shadow: var(--gm-shadow-sm);
+        }
+        .card { padding: 18px 16px; margin-bottom: 14px; }
+        .card-title {
+            margin: -2px -2px 14px; padding: 0 0 12px;
+            border-bottom: 1px solid #e5eaf3; color: var(--gm-text);
+            font-size:1.06rem; font-weight:800;
+        }
+        .card-subtitle { color: var(--gm-sub); }
+        .card-title::before {
+            content:""; display:inline-block; width:4px; height:18px; border-radius:999px;
+            background: linear-gradient(180deg, var(--gm-accent), #f0ca64); margin-right:8px; vertical-align:-3px;
+            box-shadow: 0 1px 6px rgba(212,160,23,.45);
+        }
+        .btn-action, .btn-rep, button.btn-action {
+            border-radius: 12px; border: 1px solid transparent; font-weight: 700;
+            box-shadow: 0 4px 12px rgba(15,30,58,.10);
+            transition: transform .15s ease, filter .15s ease, box-shadow .15s ease;
+        }
+        .btn-action:hover, .btn-rep:hover, button.btn-action:hover { filter: brightness(1.03); }
+        .btn-action:active, .btn-rep:active, button.btn-action:active { transform: translateY(1px) scale(.99); }
+        .btn-action:not(.bg-gray):not(.bg-red):not(.bg-blue):not(.bg-yellow):not(.bg-teal):not(.bg-purple) {
+            background: linear-gradient(135deg, var(--gm-primary) 0%, var(--gm-primary-light) 100%);
+        }
+        .bg-gray { background: #7d8ba3 !important; }
+        .bg-red { background: linear-gradient(135deg, #b73a36, #d1524c) !important; }
+        .bg-blue { background: linear-gradient(135deg, #2f5dc6, #4881df) !important; }
+        .bg-yellow { background: linear-gradient(135deg, #c99617, #e0b844) !important; color:#1f1b0f !important; }
+        .bg-teal { background: linear-gradient(135deg, #0f8f8a, #2da7a2) !important; }
+        .bg-purple { background: linear-gradient(135deg, #7053c7, #8f71e0) !important; }
+        .input-full, input, select, textarea {
+            border-radius: 12px !important; border: 1px solid #cfd8e6 !important;
+            background: #fff !important; color: var(--gm-text) !important;
+            box-shadow: inset 0 1px 2px rgba(15,30,58,.04);
+        }
+        .input-full:focus, input:focus, select:focus, textarea:focus {
+            outline: none; border-color: #6e88c8 !important; box-shadow: 0 0 0 3px rgba(59,110,212,.12) !important;
+        }
+        .nav-bar {
+            position: fixed; left: 50%; transform: translateX(-50%); bottom: 12px; z-index: 120;
+            width: min(760px, calc(100% - 18px));
+            background: rgba(9,18,37,.94); border: 1px solid rgba(255,255,255,.08);
+            border-radius: 22px; padding: 8px; gap: 6px; box-shadow: 0 14px 34px rgba(15,30,58,.32);
+            backdrop-filter: blur(10px);
+        }
+        .nav-item {
+            border-radius: 16px; color: rgba(255,255,255,.7); min-height: 56px;
+            transition: all .18s ease;
+        }
+        .nav-item.active {
+            background: linear-gradient(135deg, rgba(212,160,23,.96), rgba(240,202,100,.96));
+            color: #16120a; box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 4px 10px rgba(212,160,23,.26);
+        }
+        .nav-item:not(.active):hover { background: rgba(255,255,255,.08); color:#fff; }
+        .nav-icon { font-size: 1.15rem; }
+        .nav-text { font-size: .78rem; font-weight: 700; letter-spacing:-.01em; }
+        .modal-overlay { background: rgba(7,14,28,.58); backdrop-filter: blur(4px); }
+        .modal h3, .report-title { color: var(--gm-primary); }
+        .result-table, table { border-radius: 14px; overflow: hidden; }
+        .result-table th, th { background: #eef2f8; color: var(--gm-primary); }
+        .result-table td, td { background: rgba(255,255,255,.72); }
+
+        /* 김해시 스타일 액션 바 업그레이드 */
+        .gm-action-panel { 
+            background: linear-gradient(180deg, rgba(14,31,58,.05), rgba(193,157,83,.08));
+            border: 1px solid rgba(15,30,58,.08);
+            border-radius: 18px;
+            padding: 14px;
+            margin-top: 14px;
+        }
+        .gm-action-label {
+            display:flex; align-items:center; gap:8px;
+            font-size:.9rem; font-weight:800; color: var(--gm-primary);
+            margin-bottom:10px;
+            letter-spacing:-0.01em;
+        }
+        .gm-action-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+        .gm-action-grid.single { grid-template-columns:1fr; }
+        .gm-action-grid.two-thirds { grid-template-columns:1.2fr .8fr; }
+        .gm-action-grid.triple { grid-template-columns:1fr 1fr 1fr; }
+        .gm-primary-btn, .gm-secondary-btn, .gm-neutral-btn, .gm-danger-btn {
+            width:100%; min-height:54px; border-radius:16px !important; margin-top:0 !important;
+            display:flex; align-items:center; justify-content:center; gap:8px;
+            font-weight:800 !important; letter-spacing:-0.01em; position:relative;
+            box-shadow: 0 10px 20px rgba(15,30,58,.08);
+        }
+        .gm-primary-btn::after, .gm-secondary-btn::after, .gm-neutral-btn::after, .gm-danger-btn::after {
+            content:''; position:absolute; inset:1px; border-radius:15px; pointer-events:none;
+            border:1px solid rgba(255,255,255,.18);
+        }
+        .gm-primary-btn { background: linear-gradient(135deg, var(--gm-primary), #1a315e) !important; color:#fff !important; }
+        .gm-secondary-btn { background: linear-gradient(135deg, var(--gm-accent), #d8b15c) !important; color:#10203d !important; }
+        .gm-neutral-btn { background: linear-gradient(135deg, #eef2f7, #d7dee9) !important; color:var(--gm-primary) !important; }
+        .gm-danger-btn { background: linear-gradient(135deg, #ffd8d8, #ffb8b8) !important; color:#b42318 !important; }
+        .gm-button-caption { margin-top:10px; font-size:.78rem; color:#6b7280; text-align:center; }
+        .gm-top-actions { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:10px 0 14px; }
+        .gm-top-chip {
+            border:none; border-radius:14px; padding:10px 12px; font-weight:800; cursor:pointer;
+            background:linear-gradient(135deg,#f6f8fb,#e8edf5); color:var(--gm-primary);
+            box-shadow: inset 0 0 0 1px rgba(15,30,58,.08);
+        }
+        .gm-top-chip:active { transform:translateY(1px); }
+        .gm-stage-badge {
+            display:inline-flex; align-items:center; gap:6px; padding:7px 10px; border-radius:999px;
+            background:rgba(193,157,83,.14); color:#7a5a16; font-size:.8rem; font-weight:800; margin-bottom:10px;
+        }
+        @media (max-width: 520px) {
+            .gm-action-grid, .gm-action-grid.two-thirds, .gm-action-grid.triple, .gm-top-actions { grid-template-columns:1fr; }
+        }
+        .history-item-3d {
+            border: 1px solid #dde4ef;
+            box-shadow: var(--gm-shadow-sm);
+            background: linear-gradient(180deg,#fff,#f8fafd);
+        }
+        .stat-badge-3d {
+            border: 1px solid #dde4ef;
+            background: linear-gradient(180deg, #fff, #f8fafd);
+            box-shadow: var(--gm-shadow-sm);
+        }
+        .seed-box, .pair-badge, .p-badge, .hist-badge { border-radius: 999px; }
+        .folder-item, .pair-row, .member-selector { border-radius: 14px; border:1px solid #dde4ef; background:#fff; }
+        .premium-accent { color: var(--gm-accent-dark); }
+        @media (max-width: 640px) {
+            header { padding: 12px 12px; }
+            .editable-title { font-size: 1.05rem; }
+            .ver-sign { font-size: 1rem; }
+            .container { padding: 12px 10px 10px; }
+            .section-hero { padding: 15px 14px 14px; border-radius: 16px; }
+            .nav-bar { width: calc(100% - 12px); bottom: 8px; padding: 7px; }
+            .nav-item { min-height: 52px; }
+            .nav-text { font-size: .72rem; }
+        }
     </style>
+
+<style>
+  /* ===== modern gimhae ultra v2 ===== */
+  body.modern-gimhae-ultra-v2 {
+    background:
+      radial-gradient(circle at top right, rgba(212,160,23,.10), transparent 24%),
+      linear-gradient(180deg, #f4f6fb 0%, #eef2f8 48%, #e8edf6 100%);
+  }
+  body.modern-gimhae-ultra-v2 header {
+    padding: 12px 14px 14px;
+  }
+  body.modern-gimhae-ultra-v2 header::after {
+    content:""; display:block; position:absolute; left:0; right:0; bottom:0; height:1px;
+    background: linear-gradient(90deg, transparent, rgba(255,216,107,.45), transparent);
+  }
+  body.modern-gimhae-ultra-v2 .header-brand-row {
+    display:flex; align-items:center; justify-content:space-between; gap:10px; width:100%;
+  }
+  body.modern-gimhae-ultra-v2 .header-brand-left {
+    display:flex; align-items:center; gap:10px; min-width:0;
+  }
+  body.modern-gimhae-ultra-v2 .brand-logo-ball {
+    width:44px; height:44px; border-radius:50%; flex:0 0 44px;
+    display:flex; align-items:center; justify-content:center;
+    background: radial-gradient(circle at 30% 30%, #ffe89a 0 18%, #d4a017 19% 80%, #a77b10 81% 100%);
+    color:#0d172c; font-size:1.1rem; box-shadow:0 6px 18px rgba(212,160,23,.35), inset 0 1px 2px rgba(255,255,255,.5);
+  }
+  body.modern-gimhae-ultra-v2 .brand-stack { display:flex; flex-direction:column; min-width:0; }
+  body.modern-gimhae-ultra-v2 .header-subline {
+    font-size:.64rem !important; letter-spacing:.16em !important; color:rgba(255,255,255,.62) !important;
+    margin-top:2px !important;
+  }
+  body.modern-gimhae-ultra-v2 .header-pills { display:flex; gap:6px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
+  body.modern-gimhae-ultra-v2 .header-pill {
+    display:inline-flex; align-items:center; gap:5px; padding:6px 9px; border-radius:999px;
+    font-size:.68rem; font-weight:800; letter-spacing:.02em;
+    background:rgba(255,255,255,.08); color:#fff; border:1px solid rgba(255,255,255,.12);
+    white-space:nowrap;
+  }
+  body.modern-gimhae-ultra-v2 .header-pill.gold {
+    background:linear-gradient(135deg, rgba(212,160,23,.24), rgba(240,202,100,.16));
+    color:#ffe49a; border-color:rgba(255,216,107,.28);
+  }
+  body.modern-gimhae-ultra-v2 .header-btns {
+    margin-top:10px; padding-top:10px; border-top:1px solid rgba(255,255,255,.08);
+    justify-content:flex-end;
+  }
+
+  body.modern-gimhae-ultra-v2 .section-hero {
+    display:grid; grid-template-columns:minmax(0,1.55fr) minmax(220px,.95fr); gap:14px; align-items:stretch;
+    padding:18px 18px 18px;
+  }
+  body.modern-gimhae-ultra-v2 .section-hero-main { min-width:0; }
+  body.modern-gimhae-ultra-v2 .section-hero-title { font-size:1.16rem; }
+  body.modern-gimhae-ultra-v2 .section-hero-desc { max-width:55ch; line-height:1.5; }
+  body.modern-gimhae-ultra-v2 .section-hero-badge { margin-top:12px; }
+  body.modern-gimhae-ultra-v2 .hero-stats {
+    display:grid; grid-template-columns:1fr 1fr; gap:8px; position:relative; z-index:1;
+  }
+  body.modern-gimhae-ultra-v2 .hero-stat {
+    min-height:72px; border-radius:14px; padding:10px 12px;
+    background:linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.05));
+    border:1px solid rgba(255,255,255,.10);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
+  }
+  body.modern-gimhae-ultra-v2 .hero-stat-label { font-size:.73rem; color:rgba(255,255,255,.72); font-weight:700; }
+  body.modern-gimhae-ultra-v2 .hero-stat-value { margin-top:6px; font-size:1.14rem; font-weight:900; color:#fff; letter-spacing:-.02em; }
+  body.modern-gimhae-ultra-v2 .hero-stat-note { margin-top:3px; font-size:.68rem; color:rgba(255,255,255,.56); }
+
+  body.modern-gimhae-ultra-v2 .card {
+    position:relative; overflow:hidden; border-radius:16px; padding:18px 16px 16px;
+  }
+  body.modern-gimhae-ultra-v2 .card::before {
+    content:""; position:absolute; inset:0 0 auto 0; height:3px;
+    background:linear-gradient(90deg, var(--gm-accent), rgba(212,160,23,0));
+    opacity:.95;
+  }
+  body.modern-gimhae-ultra-v2 .folder-item,
+  body.modern-gimhae-ultra-v2 .match-card,
+  body.modern-gimhae-ultra-v2 .ladder-group,
+  body.modern-gimhae-ultra-v2 .history-item-3d,
+  body.modern-gimhae-ultra-v2 .preset-card {
+    border-radius:16px !important;
+    border:1px solid #dbe2ee !important;
+    box-shadow:0 8px 20px rgba(15,30,58,.06) !important;
+    background:linear-gradient(180deg,#fff,#f8fafd) !important;
+  }
+  body.modern-gimhae-ultra-v2 .folder-item.folder-guest {
+    background:linear-gradient(180deg, #eef8fd, #e6f3fa) !important;
+    border-color:#cfe5f2 !important;
+  }
+  body.modern-gimhae-ultra-v2 .tier-column {
+    border:1px solid #cfd8e6 !important; border-radius:14px !important; overflow:hidden;
+    box-shadow:0 8px 18px rgba(15,30,58,.06) !important;
+  }
+  body.modern-gimhae-ultra-v2 .tier-header {
+    background:linear-gradient(135deg, #0f1e3a, #1b2f5a) !important;
+    border-bottom:1px solid rgba(255,255,255,.08);
+  }
+  body.modern-gimhae-ultra-v2 .player-list { background:#f9fbff; gap:0 !important; }
+  body.modern-gimhae-ultra-v2 .member-card, body.modern-gimhae-ultra-v2 .player-row {
+    border-bottom:1px solid #edf1f7;
+  }
+  body.modern-gimhae-ultra-v2 .member-card:last-child, body.modern-gimhae-ultra-v2 .player-row:last-child { border-bottom:none; }
+
+  body.modern-gimhae-ultra-v2 .tab-count {
+    display:inline-flex; align-items:center; justify-content:center;
+    min-width:18px; height:18px; padding:0 5px; border-radius:999px;
+    background:rgba(255,255,255,.16); color:inherit; font-size:.63rem; font-weight:800; margin-left:5px;
+  }
+  body.modern-gimhae-ultra-v2 .nav-item.active .tab-count {
+    background:rgba(22,18,10,.12); color:#16120a;
+  }
+
+  body.modern-gimhae-ultra-v2 .quick-toolbar {
+    display:flex; gap:8px; flex-wrap:wrap; margin:0 0 12px;
+  }
+  body.modern-gimhae-ultra-v2 .quick-chip {
+    display:inline-flex; align-items:center; gap:6px; padding:8px 11px; border-radius:999px;
+    font-size:.76rem; font-weight:800; color:#163055; background:#fff; border:1px solid #dde4ef;
+    box-shadow:0 4px 10px rgba(15,30,58,.05);
+  }
+  body.modern-gimhae-ultra-v2 .quick-chip .dot {
+    width:8px; height:8px; border-radius:50%; background:linear-gradient(135deg, #d4a017, #efcf69);
+    box-shadow:0 0 0 3px rgba(212,160,23,.12);
+  }
+
+  @media (max-width: 760px) {
+    body.modern-gimhae-ultra-v2 .section-hero { grid-template-columns:1fr; }
+    body.modern-gimhae-ultra-v2 .header-brand-row { align-items:flex-start; }
+    body.modern-gimhae-ultra-v2 .header-pills { justify-content:flex-start; }
+  }
+  @media (max-width: 520px) {
+    body.modern-gimhae-ultra-v2 .brand-logo-ball { width:40px; height:40px; flex-basis:40px; }
+    body.modern-gimhae-ultra-v2 .editable-title { font-size:1rem; }
+    body.modern-gimhae-ultra-v2 .hero-stats { grid-template-columns:1fr 1fr; }
+    body.modern-gimhae-ultra-v2 .hero-stat { min-height:66px; padding:9px 10px; }
+    body.modern-gimhae-ultra-v2 .header-pill { font-size:.64rem; padding:5px 8px; }
+  }
+</style>
+
+
+<style>
+  body.modern-gimhae-ultra-v2 .section-hero-desc:empty { display:none; }
+  body.modern-gimhae-ultra-v2 .folder-card-grid {
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:14px;
+  }
+  body.modern-gimhae-ultra-v2 .folder-card-modern {
+    padding:16px !important; cursor:pointer; display:flex; flex-direction:column; gap:12px;
+    background:linear-gradient(180deg,#ffffff 0%,#f7faff 100%) !important;
+    border:1px solid #d7e0ee !important; box-shadow:0 10px 24px rgba(16,33,63,.08) !important;
+  }
+  body.modern-gimhae-ultra-v2 .folder-card-top,
+  body.modern-gimhae-ultra-v2 .folder-card-footer,
+  body.modern-gimhae-ultra-v2 .match-card-topline {
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+  }
+  body.modern-gimhae-ultra-v2 .folder-card-badge,
+  body.modern-gimhae-ultra-v2 .match-badge {
+    display:inline-flex; align-items:center; padding:6px 10px; border-radius:999px;
+    background:rgba(15,30,58,.08); color:#172949; font-size:.72rem; font-weight:800;
+  }
+  body.modern-gimhae-ultra-v2 .folder-card-actions { display:flex; gap:6px; align-items:center; }
+  body.modern-gimhae-ultra-v2 .folder-mini-btn,
+  body.modern-gimhae-ultra-v2 .match-open-btn {
+    width:auto !important; margin:0 !important; padding:8px 12px !important; font-size:.82rem !important;
+    border-radius:10px !important;
+  }
+  body.modern-gimhae-ultra-v2 .folder-delete-btn,
+  body.modern-gimhae-ultra-v2 .match-delete-btn {
+    background:#fff1f2 !important; color:#cf334d !important; border:1px solid #ffd5dc;
+  }
+  body.modern-gimhae-ultra-v2 .folder-card-title,
+  body.modern-gimhae-ultra-v2 .match-card-title {
+    font-size:1.05rem; font-weight:900; color:#102040; letter-spacing:-.02em;
+  }
+  body.modern-gimhae-ultra-v2 .folder-card-sub {
+    display:none;
+  }
+  body.modern-gimhae-ultra-v2 .folder-card-stats,
+  body.modern-gimhae-ultra-v2 .match-card-meta-row {
+    display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:8px;
+  }
+  body.modern-gimhae-ultra-v2 .folder-stat,
+  body.modern-gimhae-ultra-v2 .match-meta-pill {
+    padding:10px 10px; border-radius:12px; background:#f3f7fc; border:1px solid #e4ebf5;
+    display:flex; flex-direction:column; gap:5px;
+  }
+  body.modern-gimhae-ultra-v2 .folder-stat span,
+  body.modern-gimhae-ultra-v2 .match-meta-pill span {
+    font-size:.72rem; color:#75839a; font-weight:700;
+  }
+  body.modern-gimhae-ultra-v2 .folder-stat strong,
+  body.modern-gimhae-ultra-v2 .match-meta-pill strong,
+  body.modern-gimhae-ultra-v2 .match-order-no {
+    font-size:.92rem; color:#16284a; font-weight:900;
+  }
+  body.modern-gimhae-ultra-v2 .folder-card-footer {
+    margin-top:auto; color:#102040; font-weight:800; border-top:1px solid #edf2f8; padding-top:10px;
+  }
+  body.modern-gimhae-ultra-v2 .folder-arrow { font-size:1.35rem; line-height:1; }
+  body.modern-gimhae-ultra-v2 .match-card-list-modern {
+    display:flex; flex-direction:column; gap:12px;
+  }
+  body.modern-gimhae-ultra-v2 .match-card-modern {
+    padding:15px 16px !important; display:flex; justify-content:space-between; align-items:stretch; gap:12px;
+    cursor:pointer;
+  }
+  body.modern-gimhae-ultra-v2 .match-card-main {
+    flex:1; min-width:0; display:flex; flex-direction:column; gap:10px;
+  }
+  body.modern-gimhae-ultra-v2 .match-card-side {
+    display:flex; flex-direction:column; justify-content:center; align-items:stretch; gap:10px; min-width:152px;
+  }
+  body.modern-gimhae-ultra-v2 .match-card-actions-row {
+    display:flex; align-items:center; gap:8px; justify-content:flex-end; flex-wrap:nowrap;
+  }
+  body.modern-gimhae-ultra-v2 .modern-order-btns {
+    display:flex; align-items:center; gap:6px;
+  }
+  body.modern-gimhae-ultra-v2 .modern-order-btns .match-order-btn {
+    width:32px; height:32px; border-radius:10px;
+  }
+  body.modern-gimhae-ultra-v2 .match-delete-btn {
+    width:32px; height:32px; min-width:32px; padding:0 !important; border-radius:10px !important;
+    display:inline-flex; align-items:center; justify-content:center;
+  }
+  body.modern-gimhae-ultra-v2 .match-open-btn {
+    width:100% !important; justify-content:center;
+  }
+  body.modern-gimhae-ultra-v2 .folder-dashboard-toolbar {
+    display:flex; justify-content:flex-end; gap:8px; margin:0 0 12px 0; flex-wrap:wrap;
+  }
+  body.modern-gimhae-ultra-v2 .folder-dashboard-summary {
+    text-align:center; padding:8px 10px; color:#4d5b74; margin-bottom:14px;
+    background:#f6f8fc; border:1px solid #e3eaf4; border-radius:12px;
+  }
+  body.modern-gimhae-ultra-v2 .folder-dashboard-match-card {
+    margin-bottom:16px; border:1px solid #d7e0ee !important; box-shadow:0 8px 20px rgba(16,33,63,.06) !important;
+    border-radius:16px !important; overflow:hidden;
+  }
+  body.modern-gimhae-ultra-v2 .folder-dashboard-match-title {
+    background:linear-gradient(180deg,#f8fbff 0%,#eef4fb 100%); padding:12px 14px; border-bottom:1px solid #dfe7f2;
+    font-size:1rem; font-weight:900; color:#16284a;
+  }
+  body.modern-gimhae-ultra-v2 .folder-dashboard-inner { padding:12px; }
+  body.modern-gimhae-ultra-v2 .folder-dashboard-game-row {
+    display:flex; justify-content:space-between; align-items:center; gap:8px; padding:8px 10px;
+    border-bottom:1px solid #edf2f8; font-size:.86rem;
+  }
+  body.modern-gimhae-ultra-v2 .folder-dashboard-game-row:last-child { border-bottom:none; }
+  body.modern-gimhae-ultra-v2 .folder-dashboard-empty {
+    text-align:center; padding:12px; color:#8a95a8; font-size:.82rem; background:#fafbfd; border:1px dashed #d9e2ef; border-radius:10px;
+  }
+  @media (max-width: 768px) {
+    body.modern-gimhae-ultra-v2 .folder-card-grid { grid-template-columns:1fr; }
+    body.modern-gimhae-ultra-v2 .match-card-modern { flex-direction:column; }
+    body.modern-gimhae-ultra-v2 .match-card-side { align-items:stretch; min-width:0; }
+    body.modern-gimhae-ultra-v2 .match-card-actions-row { justify-content:flex-start; }
+    body.modern-gimhae-ultra-v2 .folder-card-stats,
+    body.modern-gimhae-ultra-v2 .match-card-meta-row { grid-template-columns:1fr 1fr 1fr; }
+  }
+</style>
+
+
+<style>
+  /* v6: 카드형 상세결과/점수입력/본선톤 + 모바일 정리 */
+  body.modern-gimhae-ultra-v2 #match-game .card,
+  body.modern-gimhae-ultra-v2 #match-ladder .card,
+  body.modern-gimhae-ultra-v2 #detailStatsModal .modal,
+  body.modern-gimhae-ultra-v2 #folderDashboardModal .modal {
+    background: linear-gradient(180deg,#ffffff 0%,#f7faff 100%) !important;
+    border:1px solid #d8e1ee !important;
+    box-shadow:0 14px 30px rgba(16,33,63,.10) !important;
+  }
+  body.modern-gimhae-ultra-v2 #match-game .card-title,
+  body.modern-gimhae-ultra-v2 #match-ladder .card-title {
+    padding-bottom:14px;
+    margin-bottom:14px;
+  }
+  body.modern-gimhae-ultra-v2 #match-game .result-table,
+  body.modern-gimhae-ultra-v2 #detailStatsModal .result-table,
+  body.modern-gimhae-ultra-v2 #analysisResult .result-table {
+    border:1px solid #dfe6f1;
+    border-radius:16px;
+    overflow:hidden;
+    background:#fff;
+    box-shadow:0 8px 22px rgba(16,33,63,.06);
+  }
+  body.modern-gimhae-ultra-v2 #match-game .result-table th,
+  body.modern-gimhae-ultra-v2 #detailStatsModal .result-table th,
+  body.modern-gimhae-ultra-v2 #analysisResult .result-table th {
+    background:linear-gradient(180deg,#eef3fa 0%,#e8eef7 100%) !important;
+    color:#112344 !important;
+    border-bottom:1px solid #dce5f1;
+    font-weight:900;
+  }
+  body.modern-gimhae-ultra-v2 #match-game .result-table td,
+  body.modern-gimhae-ultra-v2 #detailStatsModal .result-table td,
+  body.modern-gimhae-ultra-v2 #analysisResult .result-table td {
+    background:#fff !important;
+    border-bottom:1px solid #edf2f8;
+  }
+  body.modern-gimhae-ultra-v2 #match-game .result-table tbody tr:last-child td,
+  body.modern-gimhae-ultra-v2 #detailStatsModal .result-table tbody tr:last-child td,
+  body.modern-gimhae-ultra-v2 #analysisResult .result-table tbody tr:last-child td {
+    border-bottom:none;
+  }
+  body.modern-gimhae-ultra-v2 #match-game .rank-1 td { background:#fff8dc !important; }
+  body.modern-gimhae-ultra-v2 #match-game .rank-2 td { background:#edf6ff !important; }
+  body.modern-gimhae-ultra-v2 #match-game .rank-3 td { background:#f7f8fb !important; }
+
+  body.modern-gimhae-ultra-v2 #gameMatchList {
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    margin-top:12px;
+  }
+  body.modern-gimhae-ultra-v2 #match-game .match-card {
+    background:linear-gradient(180deg,#ffffff 0%,#f8fbff 100%) !important;
+    border:1px solid #d7e0ee !important;
+    border-radius:18px !important;
+    padding:14px !important;
+    box-shadow:0 10px 24px rgba(16,33,63,.08);
+  }
+  body.modern-gimhae-ultra-v2 #match-game .match-card.played {
+    background:linear-gradient(180deg,#fbfdf8 0%,#f0f8e7 100%) !important;
+    border-color:#cddfb0 !important;
+  }
+  body.modern-gimhae-ultra-v2 #match-game .match-p-line {
+    display:flex;
+    align-items:center;
+    gap:6px;
+    margin:6px 0;
+  }
+  body.modern-gimhae-ultra-v2 #match-game .p-right {
+    justify-content:flex-end;
+  }
+  body.modern-gimhae-ultra-v2 #match-game .name-box,
+  body.modern-gimhae-ultra-v2 #match-game input[type="text"][onchange^="editPlayerInMatch"] {
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-height:34px;
+    min-width:70px;
+    padding:6px 10px;
+    border-radius:12px;
+    background:#f4f7fc;
+    border:1px solid #e1e8f3 !important;
+    font-size:.88rem !important;
+    font-weight:800;
+    color:#102040;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.85);
+  }
+  body.modern-gimhae-ultra-v2 #match-game .seed-box {
+    min-width:24px;
+    height:24px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    background:rgba(212,160,23,.12);
+    color:#a97800;
+    font-size:.8rem;
+    font-weight:900;
+  }
+  body.modern-gimhae-ultra-v2 #match-game .score-select {
+    width:56px;
+    height:56px;
+    border-radius:16px;
+    border:1px solid #dbe4f1;
+    background:linear-gradient(180deg,#fff 0%,#f4f7fc 100%);
+    color:#0f1e3a;
+    box-shadow:0 6px 16px rgba(16,33,63,.08);
+  }
+  body.modern-gimhae-ultra-v2 #match-game .tie-breaker-box {
+    background:linear-gradient(180deg,#fff8ef 0%,#fff4e2 100%);
+    border:1px solid #ffd79a;
+    border-radius:16px;
+    padding:12px 14px;
+    box-shadow:0 8px 18px rgba(240,153,0,.08);
+  }
+  body.modern-gimhae-ultra-v2 #match-ladder #ladderDisplayArea,
+  body.modern-gimhae-ultra-v2 #tournamentBracketContainer,
+  body.modern-gimhae-ultra-v2 .tournament-bracket-wrap,
+  body.modern-gimhae-ultra-v2 .bracket-wrap,
+  body.modern-gimhae-ultra-v2 .bracket-box {
+    background:linear-gradient(180deg,#ffffff 0%,#f8fbff 100%);
+    border:1px solid #d7e0ee;
+    border-radius:18px;
+    box-shadow:0 10px 24px rgba(16,33,63,.07);
+  }
+
+  body.modern-gimhae-ultra-v2 .match-card-side {
+    align-self:stretch;
+  }
+
+  @media (max-width: 768px) {
+    body.modern-gimhae-ultra-v2 .match-card-modern {
+      padding:14px 14px !important;
+    }
+    body.modern-gimhae-ultra-v2 .match-card-side {
+      display:grid;
+      grid-template-columns:auto minmax(110px, 1fr);
+      align-items:center;
+      gap:10px;
+      width:100%;
+    }
+    body.modern-gimhae-ultra-v2 .match-card-actions-row {
+      justify-content:flex-start !important;
+      gap:6px;
+      flex-wrap:nowrap;
+      min-width:0;
+    }
+    body.modern-gimhae-ultra-v2 .modern-order-btns {
+      gap:6px;
+      flex-wrap:nowrap;
+    }
+    body.modern-gimhae-ultra-v2 .match-open-btn {
+      width:100% !important;
+      min-width:0;
+      margin-top:0 !important;
+    }
+    body.modern-gimhae-ultra-v2 .match-card-meta-row {
+      grid-template-columns:repeat(3, minmax(0,1fr));
+      gap:7px;
+    }
+    body.modern-gimhae-ultra-v2 .match-meta-pill {
+      padding:9px 8px;
+      border-radius:12px;
+    }
+
+    body.modern-gimhae-ultra-v2 #match-game .card-title {
+      flex-direction:column;
+      align-items:flex-start !important;
+      gap:10px;
+    }
+    body.modern-gimhae-ultra-v2 #match-game .gm-top-chip {
+      width:100%;
+      justify-content:center;
+    }
+    body.modern-gimhae-ultra-v2 #match-game .result-table {
+      font-size:.82rem;
+    }
+    body.modern-gimhae-ultra-v2 #match-game .result-table th,
+    body.modern-gimhae-ultra-v2 #match-game .result-table td {
+      padding:8px 4px;
+    }
+    body.modern-gimhae-ultra-v2 #match-game .match-card > div:nth-child(2) {
+      gap:8px !important;
+    }
+    body.modern-gimhae-ultra-v2 #match-game .match-card > div:nth-child(2) > div:first-child,
+    body.modern-gimhae-ultra-v2 #match-game .match-card > div:nth-child(2) > div:last-child {
+      width:40% !important;
+    }
+    body.modern-gimhae-ultra-v2 #match-game .score-select {
+      width:48px;
+      height:48px;
+      font-size:1.05rem;
+    }
+    body.modern-gimhae-ultra-v2 #match-game .name-box,
+    body.modern-gimhae-ultra-v2 #match-game input[type="text"][onchange^="editPlayerInMatch"] {
+      min-width:0;
+      width:100%;
+      padding:6px 8px;
+      font-size:.8rem !important;
+    }
+  }
+
+  @media (max-width: 430px) {
+    body.modern-gimhae-ultra-v2 .match-card-main {
+      gap:8px;
+    }
+    body.modern-gimhae-ultra-v2 .match-card-topline {
+      margin-bottom:2px;
+    }
+    body.modern-gimhae-ultra-v2 .match-badge {
+      padding:5px 9px;
+      font-size:.68rem;
+    }
+    body.modern-gimhae-ultra-v2 .match-card-title {
+      font-size:1rem;
+      line-height:1.25;
+    }
+    body.modern-gimhae-ultra-v2 .match-card-meta-row {
+      grid-template-columns:repeat(3, minmax(0,1fr));
+    }
+    body.modern-gimhae-ultra-v2 .match-meta-pill span {
+      font-size:.66rem;
+    }
+    body.modern-gimhae-ultra-v2 .match-meta-pill strong {
+      font-size:.86rem;
+    }
+    body.modern-gimhae-ultra-v2 .match-order-btn,
+    body.modern-gimhae-ultra-v2 .match-delete-btn {
+      width:30px !important;
+      height:30px !important;
+      min-width:30px !important;
+      border-radius:9px !important;
+    }
+    body.modern-gimhae-ultra-v2 .match-card-side {
+      grid-template-columns:auto minmax(96px, 1fr);
+      gap:8px;
+    }
+    body.modern-gimhae-ultra-v2 .match-open-btn {
+      padding:10px 10px !important;
+      font-size:.86rem !important;
+    }
+
+    body.modern-gimhae-ultra-v2 #match-game .result-table {
+      display:block;
+      overflow-x:auto;
+      white-space:nowrap;
+      -webkit-overflow-scrolling:touch;
+    }
+    body.modern-gimhae-ultra-v2 #match-game .match-card {
+      padding:12px !important;
+    }
+    body.modern-gimhae-ultra-v2 #match-game .match-card > div:nth-child(2) {
+      align-items:flex-start !important;
+    }
+    body.modern-gimhae-ultra-v2 #match-game .match-card > div:nth-child(2) > div:first-child,
+    body.modern-gimhae-ultra-v2 #match-game .match-card > div:nth-child(2) > div:last-child {
+      width:39% !important;
+    }
+    body.modern-gimhae-ultra-v2 #match-game .score-select {
+      width:44px;
+      height:44px;
+      border-radius:14px;
+    }
+    body.modern-gimhae-ultra-v2 #match-game .seed-box {
+      min-width:22px;
+      height:22px;
+      font-size:.74rem;
+    }
+  }
+</style>
+
+
+<style>
+  /* v7: 더 촘촘한 매치 카드 + 모바일 액션 정리 */
+  body.modern-gimhae-ultra-v2 .match-card-list-modern { gap:10px; }
+  body.modern-gimhae-ultra-v2 .match-card-modern {
+    padding:12px 13px !important;
+    gap:10px;
+    border-radius:18px !important;
+  }
+  body.modern-gimhae-ultra-v2 .match-card-main { gap:8px; }
+  body.modern-gimhae-ultra-v2 .match-card-topline {
+    min-height:24px;
+    margin-bottom:0;
+    justify-content:flex-start;
+  }
+  body.modern-gimhae-ultra-v2 .match-card-title {
+    font-size:1rem;
+    line-height:1.2;
+    margin-top:0;
+  }
+  body.modern-gimhae-ultra-v2 .match-card-meta-row {
+    gap:7px;
+  }
+  body.modern-gimhae-ultra-v2 .match-meta-pill {
+    padding:8px 9px !important;
+    min-height:auto;
+  }
+  body.modern-gimhae-ultra-v2 .match-meta-pill span {
+    font-size:.66rem;
+    margin-bottom:3px;
+  }
+  body.modern-gimhae-ultra-v2 .match-meta-pill strong {
+    font-size:.86rem;
+    line-height:1.15;
+  }
+  body.modern-gimhae-ultra-v2 .match-card-side {
+    min-width:142px;
+    gap:8px;
+  }
+  body.modern-gimhae-ultra-v2 .match-card-actions-row {
+    gap:6px;
+  }
+  body.modern-gimhae-ultra-v2 .modern-order-btns,
+  body.modern-gimhae-ultra-v2 .match-order-btns {
+    gap:5px;
+  }
+  body.modern-gimhae-ultra-v2 .modern-order-btns .match-order-btn,
+  body.modern-gimhae-ultra-v2 .match-delete-btn {
+    width:30px;
+    height:30px;
+    min-width:30px;
+    border-radius:9px !important;
+  }
+  body.modern-gimhae-ultra-v2 .match-open-btn {
+    min-height:30px;
+    padding:10px 12px !important;
+    border-radius:11px !important;
+    font-size:.9rem !important;
+  }
+
+  @media (max-width: 768px) {
+    body.modern-gimhae-ultra-v2 .match-card-modern {
+      padding:11px 12px !important;
+      gap:8px;
+    }
+    body.modern-gimhae-ultra-v2 .match-card-main { gap:7px; }
+    body.modern-gimhae-ultra-v2 .match-card-side {
+      grid-template-columns:auto minmax(104px, 1fr);
+      gap:8px;
+    }
+    body.modern-gimhae-ultra-v2 .match-card-meta-row {
+      grid-template-columns:repeat(3, minmax(0,1fr));
+      gap:6px;
+    }
+    body.modern-gimhae-ultra-v2 .match-meta-pill {
+      padding:8px 7px !important;
+    }
+    body.modern-gimhae-ultra-v2 .match-meta-pill strong {
+      font-size:.84rem;
+    }
+    body.modern-gimhae-ultra-v2 .match-open-btn {
+      padding:9px 10px !important;
+    }
+  }
+
+  @media (max-width: 430px) {
+    body.modern-gimhae-ultra-v2 .match-card-modern {
+      padding:10px 11px !important;
+    }
+    body.modern-gimhae-ultra-v2 .match-card-title {
+      font-size:.98rem;
+    }
+    body.modern-gimhae-ultra-v2 .match-card-side {
+      grid-template-columns:auto minmax(88px, 1fr);
+      gap:7px;
+    }
+    body.modern-gimhae-ultra-v2 .match-order-btn,
+    body.modern-gimhae-ultra-v2 .match-delete-btn {
+      width:28px !important;
+      height:28px !important;
+      min-width:28px !important;
+    }
+    body.modern-gimhae-ultra-v2 .match-open-btn {
+      font-size:.84rem !important;
+      padding:8px 8px !important;
+    }
+  }
+</style>
+
 </head>
 <body>
 
@@ -568,25 +1438,42 @@
             <div style="font-size:0.8rem; color:#888; margin:5px 0;">💡 이름을 누르면 시드/일반 상태가 변경됩니다.</div>
            <div class="player-tags" id="matchPlayerList" style="margin-bottom:15px; min-height:40px;"></div>
 
-<button class="btn-action bg-teal" onclick="playSequentialOrder()">🔢 입력한 순서대로 바로 시작</button>
-<button class="btn-action bg-purple" style="margin-top:5px;" onclick="goToLadder()">🎲 사다리(순서 뽑기)</button>
-<button class="btn-action bg-gray" style="margin-top:5px;" onclick="cancelMatchSetup()">취소</button>
+<div class="gm-action-panel">
+    <div class="gm-action-label">🎾 매치 시작 방식 선택</div>
+    <div class="gm-action-grid">
+        <button class="btn-action gm-primary-btn" onclick="goToLadder()">🎲 랜덤 추첨 시작</button>
+        <button class="btn-action gm-secondary-btn" onclick="playSequentialOrder()">🔢 입력 순서로 시작</button>
+    </div>
+    <div class="gm-button-caption"></div>
+    <div class="gm-action-grid single" style="margin-top:10px;">
+        <button class="btn-action gm-neutral-btn" onclick="cancelMatchSetup()">↩ 설정 취소</button>
+    </div>
+</div>
         </div>
     </div>
 
     <div id="match-ladder" style="display:none;">
     <div class="card">
         <div class="card-title">🎲 순서 추첨</div>
+        <div class="gm-stage-badge">🎲 추첨 단계 · 순번을 확정한 뒤 경기로 이동</div>
         <div style="text-align: center; margin: 10px 0; color: #666; font-size:0.9rem;">
             <div id="ladderStatusText">번호 추첨 대기 중...</div>
         </div>
         <div id="ladderDisplayArea" style="min-height:150px; margin-bottom:10px;"></div>
         
-        <button id="btnPlaySequential" class="btn-action bg-teal" style="margin-bottom:5px;" onclick="playSequentialOrder()">🔢 입력한 순서대로 경기 진행하기</button>
-
-        <button id="btnStartLadder" class="btn-action bg-blue" onclick="runLadderAnimation()">🎰 랜덤 추첨 시작 (터치)</button>
-        <button id="btnConfirmLadder" class="btn-action bg-green" style="display:none;" onclick="startMatchGame()">🚀 경기 시작</button>
-        <button class="btn-action bg-gray" style="margin-top:5px;" onclick="cancelLadderAndGoBack()">⬅ 다시 설정</button>
+        <div class="gm-action-panel">
+            <div class="gm-action-label">🎯 추첨 실행 / 경기 진입</div>
+            <div class="gm-action-grid two-thirds">
+                <button id="btnStartLadder" class="btn-action gm-primary-btn" onclick="runLadderAnimation()">🎰 랜덤 추첨 시작</button>
+                <button id="btnPlaySequential" class="btn-action gm-secondary-btn" onclick="playSequentialOrder()">🔢 바로 시작</button>
+            </div>
+            <div class="gm-action-grid single" style="margin-top:10px;">
+                <button id="btnConfirmLadder" class="btn-action gm-primary-btn" style="display:none;" onclick="startMatchGame()">🚀 경기 시작</button>
+            </div>
+            <div class="gm-action-grid single" style="margin-top:10px;">
+                <button class="btn-action gm-neutral-btn" onclick="cancelLadderAndGoBack()">⬅ 다시 설정</button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -597,7 +1484,11 @@
                    <span id="gameTitleDisplay" style="font-size:1rem;"></span>
                    <button class="btn-icon" style="width:24px; height:24px; font-size:0.8rem; background:#eee; color:#333;" onclick="renameMatchTitle()">✏️</button>
                 </div>
-                <button class="btn-action bg-gray" style="width:auto; padding:5px 10px; margin:0; font-size:0.8rem;" onclick="saveAndExitMatch()">나가기</button>
+                <button class="gm-top-chip" onclick="saveAndExitMatch()">💾 저장 후 나가기</button>
+            </div>
+            <div class="gm-top-actions">
+                <button class="gm-top-chip" onclick="renameMatchTitle()">✏️ 매치명 수정</button>
+                <button class="gm-top-chip" onclick="resetMatchScores()">↺ 점수 초기화</button>
             </div>
             
             <table class="result-table" style="margin-bottom:15px;">
@@ -615,9 +1506,13 @@
 
             <div id="gameMatchList"></div>
             
-            <div style="display:flex; gap:5px; margin-top:10px;">
-                <button class="btn-action bg-green" onclick="saveAndExitMatch()">💾 저장 및 종료</button>
-                <button class="btn-action bg-red" onclick="resetMatchScores()" style="width:40%; background:#ffcdd2; color:#d32f2f;">↺ 초기화</button>
+            <div class="gm-action-panel">
+                <div class="gm-action-label">📋 결과 처리</div>
+                <div class="gm-action-grid two-thirds">
+                    <button class="btn-action gm-primary-btn" onclick="saveAndExitMatch()">💾 저장 및 종료</button>
+                    <button class="btn-action gm-danger-btn" onclick="resetMatchScores()">↺ 초기화</button>
+                </div>
+                <div class="gm-button-caption"></div>
             </div>
         </div>
     </div>
@@ -2008,23 +2903,32 @@ if (window.isAdmin) {
             folderListDiv.innerHTML = ''; emptyMsg.style.display = 'block'; 
         } else {
             emptyMsg.style.display = 'none';
-            folderListDiv.innerHTML = Object.keys(folders).sort().reverse().map(date => `
-                <div class="folder-item" onclick="openFolder('${date}')">
-                    <div style="display:flex; align-items:center;">
-                        <span style="font-size:1.8rem; margin-right:10px;">📂</span>
-                        <div>
-                            <div style="font-weight:bold; font-size:1rem;">${date}</div>
-                            <div style="font-size:0.8rem; color:#888;">${folders[date].length}개 매치</div>
+            folderListDiv.classList.add('folder-card-grid');
+            folderListDiv.innerHTML = Object.keys(folders).sort().reverse().map(date => {
+                const totalMatches = folders[date].length;
+                const playedMatches = folders[date].filter(m => (m.matches||[]).some(x => x.played)).length;
+                const totalPlayers = folders[date].reduce((sum, m) => sum + (m.players?.length || 0), 0);
+                return `
+                <div class="folder-item folder-card-modern" onclick="openFolder('${date}')">
+                    <div class="folder-card-top">
+                        <div class="folder-card-badge">📂 폴더</div>
+                        <div class="folder-card-actions" onclick="event.stopPropagation()">
+                            <button class="btn-action bg-blue folder-mini-btn" onclick="openFolderDashboard('${date}')">📊 현황</button>
+                            ${window.isAdmin ? `<button class="btn-icon folder-delete-btn" onclick="deleteFolder(event, '${date}')">🗑️</button>` : ''}
                         </div>
                     </div>
-                 <div style="display:flex; gap:5px;" onclick="event.stopPropagation()">
-                        <button class="btn-action bg-blue" style="width:auto; padding:5px 12px; font-size:0.85rem; margin:0;" onclick="openFolderDashboard('${date}')">
-                            📊 현재현황
-                        </button>
-                        ${window.isAdmin ? `<button class="btn-icon" style="background:#ffebee; color:red; width:36px; height:36px;" onclick="deleteFolder(event, '${date}')">🗑️</button>` : ''}
+                    <div class="folder-card-title">${date}</div>
+                    <div class="folder-card-stats">
+                        <div class="folder-stat"><span>매치</span><strong>${totalMatches}개</strong></div>
+                        <div class="folder-stat"><span>완료</span><strong>${playedMatches}개</strong></div>
+                        <div class="folder-stat"><span>참가</span><strong>${totalPlayers}명</strong></div>
+                    </div>
+                    <div class="folder-card-footer">
+                        <span>폴더 열기</span>
+                        <span class="folder-arrow">›</span>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
         }
     }
     window.openFolder = (date) => {
@@ -2077,22 +2981,38 @@ if (window.isAdmin) {
         }
         
         // orderKey를 onclick에 직접 넣지 않고 window._currentOrderKey를 사용
-        listDiv.innerHTML = matches.map((m, idx) => `
-            <div class="card" style="padding:12px; margin-bottom:8px; cursor:pointer; display:flex; justify-content:space-between; align-items:center;" onclick="loadMatchAndShowResult(${m.id})">
-                <div style="flex:1; min-width:0;">
-                    <div style="font-weight:bold; font-size:1rem; margin-bottom:3px;">${m.title || '무제'}</div>
-                    <div style="font-size:0.8rem; color:#666;">${m.players.length}명 / ${(m.matches||[]).filter(x=>x.played).length}게임 완료</div>
-                </div>
-                <div style="display:flex; align-items:center; gap:4px;" onclick="event.stopPropagation()">
-                    ${canEdit ? `
-                    <div class="match-order-btns">
-                        <button class="match-order-btn" title="위로" onclick="moveMatchOrder(${m.id}, -1)">▲</button>
-                        <button class="match-order-btn" title="아래로" onclick="moveMatchOrder(${m.id}, 1)">▼</button>
+        listDiv.classList.add('match-card-list-modern');
+        listDiv.innerHTML = matches.map((m, idx) => {
+            const playedCount = (m.matches||[]).filter(x=>x.played).length;
+            const totalCount = (m.matches||[]).length;
+            const playerCount = m.players?.length || 0;
+            return `
+            <div class="card match-card-modern" onclick="loadMatchAndShowResult(${m.id})">
+                <div class="match-card-main">
+                    <div class="match-card-topline">
+                        <span class="match-badge">${playedCount > 0 ? '진행중/완료' : '준비됨'}</span>
+                        
                     </div>
-                    <button class="btn-icon" style="background:#ffebee; color:red;" onclick="deleteMatch(event, ${m.id})">🗑️</button>` : ''}
+                    <div class="match-card-title">${m.title || '무제'}</div>
+                    <div class="match-card-meta-row">
+                        <div class="match-meta-pill"><span>참가</span><strong>${playerCount}명</strong></div>
+                        <div class="match-meta-pill"><span>완료</span><strong>${playedCount}/${totalCount || 0}</strong></div>
+                        <div class="match-meta-pill"><span>폴더</span><strong>${window.currentFolder || '-'}</strong></div>
+                    </div>
+                </div>
+                <div class="match-card-side" onclick="event.stopPropagation()">
+                    ${canEdit ? `
+                    <div class="match-card-actions-row">
+                        <div class="match-order-btns modern-order-btns">
+                            <button class="match-order-btn" title="위로" onclick="moveMatchOrder(${m.id}, -1)">▲</button>
+                            <button class="match-order-btn" title="아래로" onclick="moveMatchOrder(${m.id}, 1)">▼</button>
+                        </div>
+                        <button class="btn-icon match-delete-btn" onclick="deleteMatch(event, ${m.id})">🗑️</button>
+                    </div>` : ''}
+                    <button class="btn-action bg-yellow match-open-btn" onclick="loadMatchAndShowResult(${m.id})">열기</button>
                 </div>
             </div>
-        `).join('');
+        `}).join('');
     }
     
     window.moveMatchOrder = (matchId, direction) => {
@@ -4086,38 +5006,30 @@ window.executeRestore = (data) => {
         const matches = window.matchHistory.filter(m => m.date === folderName);
         if (matches.length === 0) return alert("매치 데이터가 없습니다.");
 
-        // 매치 생성 역순(최신순) 정렬
         matches.sort((a,b) => b.id - a.id);
 
-        let html = `<div style="text-align:center; padding:5px; color:#555; margin-bottom:15px;">
-                        총 <b>${matches.length}개</b> 조의 경기 진행 현황입니다.
-                    </div>`;
+        let html = `<div class="folder-dashboard-summary">총 <b>${matches.length}개</b> 조의 경기 진행 현황입니다.</div>`;
 
         matches.forEach((m, idx) => {
-            // 1. 순위 계산 및 정렬 (승점 > 득실 > 나이)
             const sortedPlayers = [...m.players].sort((a, b) => {
                 if (b.pts !== a.pts) return b.pts - a.pts;
                 if (b.diff !== a.diff) return b.diff - a.diff;
                 return (b.age || 0) - (a.age || 0);
             });
 
-            // 2. 카드 헤더 (매치 제목)
             html += `
-            <div class="card" style="margin-bottom:20px; border:2px solid #ddd; box-shadow:none;">
-                <div class="card-title" style="background:#f5f5f5; padding:10px; border-bottom:1px solid #ddd; font-size:1rem;">
-                    ${m.title || '제목 없음'}
-                </div>
-                <div style="padding:10px;">
+            <div class="card folder-dashboard-match-card">
+                <div class="folder-dashboard-match-title">${m.title || '제목 없음'}</div>
+                <div class="folder-dashboard-inner">
             `;
 
-            // 3. 순위표 그리기
-            html += `<h4 style="margin:0 0 5px 0; font-size:0.9rem; color:#555;">🏆 현재 순위</h4>
+            html += `<h4 style="margin:0 0 8px 0; font-size:0.9rem; color:#555;">🏆 현재 순위</h4>
                      <table class="result-table" style="margin-bottom:15px;">
                         <thead>
                             <tr><th>위</th><th>이름</th><th>승점</th><th>득실</th><th>승</th><th>무</th><th>패</th></tr>
                         </thead>
                         <tbody>`;
-            
+
             sortedPlayers.forEach((p, i) => {
                 const rankClass = (i===0)?'rank-1':(i===1)?'rank-2':(i===2)?'rank-3':'';
                 html += `<tr class="${rankClass}">
@@ -4132,26 +5044,25 @@ window.executeRestore = (data) => {
             });
             html += `</tbody></table>`;
 
-            // 4. 경기 기록 리스트 그리기 (진행된 게임만)
             const playedGames = (m.matches || []).filter(g => g.played);
             if (playedGames.length > 0) {
-                html += `<h4 style="margin:0 0 5px 0; font-size:0.9rem; color:#555;">🎾 경기 기록 (${playedGames.length}게임)</h4>`;
-                html += `<div style="background:#fafafa; border:1px solid #eee; border-radius:5px; padding:5px;">`;
-                
+                html += `<h4 style="margin:0 0 8px 0; font-size:0.9rem; color:#555;">🎾 경기 기록 (${playedGames.length}게임)</h4>`;
+                html += `<div style="background:#fafcff; border:1px solid #e6edf7; border-radius:12px; padding:6px;">`;
+
                 playedGames.forEach(g => {
                     html += `
-                    <div style="display:flex; justify-content:space-between; align-items:center; padding:6px; border-bottom:1px solid #eee; font-size:0.85rem;">
+                    <div class="folder-dashboard-game-row">
                         <div style="width:40%; text-align:left;">${g.t1[0].name}, ${g.t1[1].name}</div>
-                        <div style="font-weight:bold; color:#1976d2;">${g.s1} : ${g.s2}</div>
+                        <div style="font-weight:bold; color:#1976d2; white-space:nowrap;">${g.s1} : ${g.s2}</div>
                         <div style="width:40%; text-align:right;">${g.t2[0].name}, ${g.t2[1].name}</div>
                     </div>`;
                 });
                 html += `</div>`;
             } else {
-                html += `<div style="text-align:center; padding:10px; color:#aaa; font-size:0.8rem;">아직 진행된 경기가 없습니다.</div>`;
+                html += `<div class="folder-dashboard-empty">아직 진행된 경기가 없습니다.</div>`;
             }
 
-            html += `</div></div>`; // 카드 닫기
+            html += `</div></div>`;
         });
 
         document.getElementById('dashboardTitle').innerText = `📂 ${folderName} 전체 현황`;
@@ -4329,15 +5240,33 @@ window.playSequentialOrder = () => {
     </div>
 </div>
 <div id="folderDashboardModal" class="modal-overlay" onclick="closeModal('folderDashboardModal')">
-    <div class="modal" onclick="event.stopPropagation()" style="max-width: 600px;">
-        <h3 id="dashboardTitle" style="text-align:center; border-bottom:2px solid #eee; padding-bottom:10px; margin-top:0;">📂 폴더 종합 현황</h3>
-        <div style="text-align:center; font-size:0.9rem; color:#666; margin-bottom:10px;">
-            이 폴더에 포함된 모든 매치의 점수를 합산한 결과입니다.
+    <div class="modal" onclick="event.stopPropagation()" style="max-width: 640px;">
+        <div id="folderDashboardCaptureArea">
+            <h3 id="dashboardTitle" style="text-align:center; border-bottom:2px solid #eee; padding-bottom:10px; margin-top:0;">📂 폴더 종합 현황</h3>
+            <div id="folderTotalRankArea" style="overflow-x:auto;"></div>
         </div>
-        <div id="folderTotalRankArea" style="overflow-x:auto;"></div>
-        <button class="btn-action bg-gray" onclick="closeModal('folderDashboardModal')">닫기</button>
+        <div class="folder-dashboard-toolbar">
+            <button class="btn-action bg-blue" onclick="saveFolderDashboardAsImage()">🖼️ 전체 이미지 저장</button>
+            <button class="btn-action bg-gray" onclick="closeModal('folderDashboardModal')">닫기</button>
+        </div>
     </div>
 </div>
+
+<script>
+window.saveFolderDashboardAsImage = async () => {
+    const element = document.getElementById('folderDashboardCaptureArea');
+    if (!element) return alert('저장할 화면을 찾을 수 없습니다.');
+    try {
+        const canvas = await html2canvas(element, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+        const link = document.createElement('a');
+        const title = (document.getElementById('dashboardTitle')?.innerText || '폴더_현황').replace(/[\\/:*?"<>|]/g, '_');
+        link.download = `${title}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    } catch (e) {
+        alert('이미지 저장 중 오류가 발생했습니다.');
+    }
+}
 
 <script>
 // =========================================================
@@ -4406,6 +5335,250 @@ window.editPlayerInMatch = (matchId, teamNum, pIdx, newName) => {
   try { renderGameUI(); } catch(e) {}
 };
 
+</script>
+
+
+<script>
+(function(){
+  const HERO_INFO = {
+    'page-rank': {icon:'🏆', title:'등급 현황 대시보드', desc:'', badge:'MODERN RANK BOARD'},
+    'page-match': {icon:'🎾', title:'매치 운영 센터', desc:'', badge:'MATCH CONTROL'},
+    'page-team': {icon:'🛡️', title:'단체전 관리', desc:'', badge:'TEAM MANAGER'},
+    'page-history': {icon:'📜', title:'경기 히스토리', desc:'', badge:'HISTORY & STATS'}
+  };
+
+  function applyPremiumSkin(){
+    document.body.classList.add('modern-gimhae-ultra');
+
+    document.querySelectorAll('.page-section').forEach(page => {
+      if (page.querySelector(':scope > .section-hero')) return;
+      const info = HERO_INFO[page.id];
+      if (!info) return;
+      const hero = document.createElement('div');
+      hero.className = 'section-hero';
+      hero.innerHTML = `
+        <div class="section-hero-title">${info.icon} ${info.title}</div>
+        <div class="section-hero-desc">${info.desc}</div>
+        <div class="section-hero-badge">${info.badge}</div>
+      `;
+      page.insertBefore(hero, page.firstChild);
+    });
+
+    document.querySelectorAll('.card').forEach(card => {
+      if (!card.dataset.skinReady) {
+        card.dataset.skinReady = '1';
+      }
+    });
+
+    const title = document.getElementById('appTitleText');
+    if (title && !document.querySelector('.header-subline')) {
+      const sub = document.createElement('div');
+      sub.className = 'header-subline';
+      sub.style.cssText = 'font-size:.68rem; color:rgba(255,255,255,.7); letter-spacing:.12em; font-weight:600; margin-top:2px;';
+      sub.textContent = 'MODERN TENNIS MATCH MANAGER';
+      const wrap = title.parentElement;
+      wrap.style.flexDirection = 'column';
+      wrap.style.alignItems = 'flex-start';
+      wrap.appendChild(sub);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', applyPremiumSkin);
+  } else {
+    applyPremiumSkin();
+  }
+})();
+</script>
+
+<script>
+(function(){
+  function textOf(sel){
+    const el = document.querySelector(sel);
+    return (el?.textContent || '').trim();
+  }
+  function numberFromText(str){
+    const m = String(str||'').replace(/,/g,'').match(/\d+/);
+    return m ? Number(m[0]) : 0;
+  }
+  function ensureHeaderUpgrade(){
+    const header = document.querySelector('header');
+    if (!header || header.dataset.v2Ready) return;
+    header.dataset.v2Ready = '1';
+    const titleWrap = header.querySelector('.app-title');
+    const btns = header.querySelector('.header-btns');
+    if (titleWrap) {
+      const title = titleWrap.querySelector('#appTitleText');
+      const sub = titleWrap.querySelector('.header-subline');
+      const ver = titleWrap.querySelector('.ver-sign');
+      const brandRow = document.createElement('div');
+      brandRow.className = 'header-brand-row';
+      const left = document.createElement('div');
+      left.className = 'header-brand-left';
+      const logo = document.createElement('div');
+      logo.className = 'brand-logo-ball';
+      logo.textContent = '🎾';
+      const stack = document.createElement('div');
+      stack.className = 'brand-stack';
+      if (title) stack.appendChild(title);
+      if (sub) stack.appendChild(sub);
+      if (ver) {
+        ver.style.display = 'none';
+      }
+      left.appendChild(logo); left.appendChild(stack);
+      const pills = document.createElement('div');
+      pills.className = 'header-pills';
+      pills.innerHTML = `
+        <span class="header-pill gold">${ver ? ver.textContent : 'MODERN'}</span>
+        <span class="header-pill" id="headerDatePill">${new Date().toLocaleDateString('ko-KR', {month:'2-digit', day:'2-digit'})}</span>
+      `;
+      brandRow.appendChild(left); brandRow.appendChild(pills);
+      header.insertBefore(brandRow, btns || null);
+    }
+  }
+
+  function ensureQuickToolbars(){
+    document.querySelectorAll('.page-section').forEach(page => {
+      if (page.querySelector(':scope > .quick-toolbar')) return;
+      const bar = document.createElement('div');
+      bar.className = 'quick-toolbar';
+      const id = page.id;
+      const presets = {
+        'page-rank': [['등급 추적','전체 회원'], ['실시간','포인트 보드']],
+        'page-match': [['오늘 흐름','매치 운영'], ['공식/게스트','기록 분리']],
+        'page-team': [['대회 분석','단체전 통계'], ['연도 필터','기록 비교']],
+        'page-history': [['변경 이력','히스토리'], ['기록 보관','통계 연동']]
+      };
+      (presets[id] || []).forEach(([a,b]) => {
+        const chip = document.createElement('div');
+        chip.className = 'quick-chip';
+        chip.innerHTML = `<span class="dot"></span><span>${a}</span><span style="color:#7b8aa3;font-weight:700;">${b}</span>`;
+        bar.appendChild(chip);
+      });
+      page.insertBefore(bar, page.children[1] || null);
+    });
+  }
+
+  function heroStatsFor(pageId){
+    if (pageId === 'page-rank') {
+      const totalMembers = numberFromText(textOf('#totalMemberCnt'));
+      const tiers = document.querySelectorAll('#tierBoard .tier-column').length;
+      const warnings = document.querySelectorAll('#unassignedList > *').length;
+      return [
+        ['회원 수', totalMembers ? `${totalMembers}명` : '-', '등급판 기준'],
+        ['조 개수', tiers ? `${tiers}개` : '-', 'A~D 티어'],
+        ['미배정', `${warnings}명`, warnings ? '확인 필요' : '정상']
+      ];
+    }
+    if (pageId === 'page-match') {
+      const official = document.querySelectorAll('#folderList .folder-item').length;
+      const cards = document.querySelectorAll('#matchesInFolderArea .match-card').length;
+      const folderName = textOf('#currentFolderName') || '폴더 선택';
+      return [
+        ['공식 폴더', `${official}개`, '게스트 별도'],
+        ['현재 매치', `${cards}건`, folderName],
+        ['운영 상태', document.getElementById('match-setup')?.style.display === 'none' ? '목록' : '설정중', '실시간 반영']
+      ];
+    }
+    if (pageId === 'page-team') {
+      const totalGames = textOf('#statTotalGames') || '-';
+      const bestDuo = textOf('#statBestDuo') || '-';
+      const mvp = textOf('#statMVP') || '-';
+      return [
+        ['총 출전', totalGames, '대회 누적'],
+        ['최강 듀오', bestDuo, '분석 센터'],
+        ['기여왕', mvp, '팀 포인트']
+      ];
+    }
+    if (pageId === 'page-history') {
+      const historyCount = document.querySelectorAll('#historyListArea .history-item-3d, #historyListArea > div[style*="border"]').length || document.querySelectorAll('#historyListArea > div').length;
+      const empty = /기록 없음/.test(textOf('#historyListArea'));
+      return [
+        ['기록 수', empty ? '0건' : `${historyCount}건`, '등급+대회'],
+        ['보관 상태', empty ? '비어 있음' : '저장됨', '히스토리 목록'],
+        ['화면 구성', '카드형', '목록 정리']
+      ];
+    }
+    return [];
+  }
+
+  function ensureHeroStructure(){
+    document.querySelectorAll('.section-hero').forEach(hero => {
+      if (!hero.querySelector('.section-hero-main')) {
+        const title = hero.querySelector('.section-hero-title');
+        const desc = hero.querySelector('.section-hero-desc');
+        const badge = hero.querySelector('.section-hero-badge');
+        const main = document.createElement('div');
+        main.className = 'section-hero-main';
+        if (title) main.appendChild(title);
+        if (desc) main.appendChild(desc);
+        if (badge) main.appendChild(badge);
+        hero.prepend(main);
+      }
+      if (!hero.querySelector('.hero-stats')) {
+        const stats = document.createElement('div');
+        stats.className = 'hero-stats';
+        hero.appendChild(stats);
+      }
+    });
+  }
+
+  function renderHeroStats(){
+    document.querySelectorAll('.page-section').forEach(page => {
+      const box = page.querySelector(':scope > .section-hero .hero-stats');
+      if (!box) return;
+      const stats = heroStatsFor(page.id);
+      box.innerHTML = stats.map(([label, value, note]) => `
+        <div class="hero-stat">
+          <div class="hero-stat-label">${label}</div>
+          <div class="hero-stat-value">${value}</div>
+          <div class="hero-stat-note">${note}</div>
+        </div>
+      `).join('');
+    });
+  }
+
+  function updateTabCounts(){
+    const mapping = {
+      '등급현황': document.querySelectorAll('#tierBoard .tier-column').length,
+      '매치': document.querySelectorAll('#folderList .folder-item').length,
+      '단체전': document.querySelectorAll('#teamListArea .card, #teamListArea .folder-item, #teamListArea .match-card').length,
+      '히스토리': (() => {
+        const area = document.getElementById('historyListArea');
+        if (!area) return 0;
+        return /기록 없음/.test(area.textContent || '') ? 0 : area.children.length;
+      })()
+    };
+    document.querySelectorAll('.nav-item').forEach(item => {
+      const text = item.querySelector('.nav-text');
+      if (!text) return;
+      let badge = item.querySelector('.tab-count');
+      if (!badge) {
+        badge = document.createElement('span');
+        badge.className = 'tab-count';
+        text.appendChild(badge);
+      }
+      const plain = text.childNodes[0]?.textContent?.trim() || text.textContent.trim().replace(/\d+/g,'').trim();
+      badge.textContent = mapping[plain] ?? 0;
+    });
+  }
+
+  function run(){
+    document.body.classList.add('modern-gimhae-ultra-v2');
+    ensureHeaderUpgrade();
+    ensureQuickToolbars();
+    ensureHeroStructure();
+    renderHeroStats();
+    updateTabCounts();
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
+  else run();
+  window.addEventListener('load', run);
+  setInterval(() => {
+    try { renderHeroStats(); updateTabCounts(); } catch(e) {}
+  }, 2000);
+})();
 </script>
 
 </body>
