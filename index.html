@@ -652,7 +652,203 @@
             .nav-item { min-height: 52px; }
             .nav-text { font-size: .72rem; }
         }
-    </style>
+    
+
+  body.modern-gimhae-ultra-v2 .match-overview-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(7, 16, 40, 0.62);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 16px;
+  }
+  body.modern-gimhae-ultra-v2 .match-overview-sheet {
+    width: min(920px, 100%);
+    max-height: 88vh;
+    overflow: auto;
+    background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+    border-radius: 22px;
+    box-shadow: 0 24px 56px rgba(10, 24, 64, 0.28);
+    padding: 18px;
+    border: 1px solid rgba(21, 54, 122, 0.10);
+  }
+  body.modern-gimhae-ultra-v2 .match-overview-head {
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:14px;
+  }
+  body.modern-gimhae-ultra-v2 .match-overview-title { font-size:1.12rem; font-weight:800; color:#102349; }
+  body.modern-gimhae-ultra-v2 .match-overview-sub { font-size:0.88rem; color:#60708f; margin-top:4px; }
+  body.modern-gimhae-ultra-v2 .match-overview-summary {
+    display:grid;
+    grid-template-columns:repeat(3, minmax(0,1fr));
+    gap:10px;
+    margin-bottom:14px;
+  }
+  body.modern-gimhae-ultra-v2 .match-overview-sumcard {
+    background:#fff;
+    border:1px solid rgba(22, 66, 153, 0.10);
+    border-radius:16px;
+    padding:12px 14px;
+  }
+  body.modern-gimhae-ultra-v2 .match-overview-sumcard .label { font-size:0.76rem; color:#6d7a92; font-weight:700; }
+  body.modern-gimhae-ultra-v2 .match-overview-sumcard .value { font-size:1.08rem; color:#11264f; font-weight:800; margin-top:6px; }
+  body.modern-gimhae-ultra-v2 .match-overview-list { display:flex; flex-direction:column; gap:10px; }
+  body.modern-gimhae-ultra-v2 .match-overview-item {
+    background:#fff;
+    border:1px solid rgba(17, 55, 127, 0.10);
+    border-radius:18px;
+    padding:14px;
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto;
+    gap:12px;
+    align-items:center;
+  }
+  body.modern-gimhae-ultra-v2 .match-overview-item-title { font-weight:800; color:#11264f; font-size:1rem; }
+  body.modern-gimhae-ultra-v2 .match-overview-item-folder { font-size:0.8rem; color:#6a7a96; margin-bottom:4px; }
+  body.modern-gimhae-ultra-v2 .match-overview-item-meta { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+  body.modern-gimhae-ultra-v2 .match-overview-pill {
+    background:#f3f7ff;
+    border:1px solid rgba(28, 84, 196, 0.10);
+    color:#28457f;
+    border-radius:999px;
+    padding:5px 10px;
+    font-size:0.78rem;
+    font-weight:700;
+  }
+  body.modern-gimhae-ultra-v2 .match-overview-status { min-width:88px; text-align:center; }
+  body.modern-gimhae-ultra-v2 .match-overview-empty {
+    text-align:center; padding:28px 16px; color:#6d7b92; background:#fff; border:1px dashed rgba(16,35,73,0.16); border-radius:18px;
+  }
+  body.modern-gimhae-ultra-v2 .match-overview-section {
+    margin-top: 18px;
+  }
+  body.modern-gimhae-ultra-v2 .match-overview-section-head {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin:0 0 10px 0;
+  }
+  body.modern-gimhae-ultra-v2 .match-overview-section-title {
+    font-size:0.98rem;
+    font-weight:900;
+    color:#11264f;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  body.modern-gimhae-ultra-v2 .match-overview-section-note {
+    color:#6a7a96;
+    font-size:0.8rem;
+    font-weight:700;
+  }
+  body.modern-gimhae-ultra-v2 .match-overview-section-list {
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  body.modern-gimhae-ultra-v2 .match-overview-item-top {
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:10px;
+  }
+  body.modern-gimhae-ultra-v2 .match-overview-status-chip {
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:72px;
+    padding:6px 10px;
+    border-radius:999px;
+    font-size:0.78rem;
+    font-weight:800;
+    border:1px solid transparent;
+    white-space:nowrap;
+  }
+  body.modern-gimhae-ultra-v2 .match-overview-status-chip.ready {
+    background:#fff7df;
+    border-color:#f5dda2;
+    color:#8a6500;
+  }
+  body.modern-gimhae-ultra-v2 .match-overview-status-chip.active {
+    background:#e9f2ff;
+    border-color:#bfd6ff;
+    color:#1d54b5;
+  }
+  body.modern-gimhae-ultra-v2 .match-overview-status-chip.done {
+    background:#ecf8ef;
+    border-color:#ccead2;
+    color:#227145;
+  }
+  body.modern-gimhae-ultra-v2 .match-overview-progress {
+    margin-top:12px;
+    background:#edf2fb;
+    border-radius:999px;
+    height:10px;
+    overflow:hidden;
+  }
+  body.modern-gimhae-ultra-v2 .match-overview-progress-fill {
+    height:100%;
+    border-radius:999px;
+    background:linear-gradient(90deg,#5b8def 0%,#183e8c 100%);
+  }
+  body.modern-gimhae-ultra-v2 .match-overview-stats {
+    margin-top:12px;
+    display:grid;
+    grid-template-columns:repeat(4, minmax(0,1fr));
+    gap:8px;
+  }
+  body.modern-gimhae-ultra-v2 .match-overview-stat {
+    background:#f8fbff;
+    border:1px solid rgba(17, 55, 127, 0.08);
+    border-radius:14px;
+    padding:10px 10px;
+  }
+  body.modern-gimhae-ultra-v2 .match-overview-stat .label {
+    font-size:0.72rem;
+    color:#6d7a92;
+    font-weight:700;
+  }
+  body.modern-gimhae-ultra-v2 .match-overview-stat .value {
+    margin-top:5px;
+    font-size:0.98rem;
+    color:#102349;
+    font-weight:900;
+  }
+  body.modern-gimhae-ultra-v2 .match-overview-actions {
+    margin-top:12px;
+    display:flex;
+    justify-content:flex-end;
+  }
+  body.modern-gimhae-ultra-v2 .match-overview-open-btn {
+    border:none;
+    border-radius:12px;
+    background:linear-gradient(135deg,#19345f 0%,#2b5db6 100%);
+    color:#fff;
+    font-weight:800;
+    padding:10px 14px;
+    cursor:pointer;
+    box-shadow:0 10px 20px rgba(28,84,196,0.18);
+  }
+  body.modern-gimhae-ultra-v2 .match-overview-open-btn:hover { filter:brightness(1.03); }
+  @media (max-width: 640px) {
+    body.modern-gimhae-ultra-v2 .match-overview-sheet { padding:14px; border-radius:18px; }
+    body.modern-gimhae-ultra-v2 .match-overview-summary { grid-template-columns:1fr; }
+    body.modern-gimhae-ultra-v2 .match-overview-item { grid-template-columns:1fr; }
+    body.modern-gimhae-ultra-v2 .match-overview-status { min-width:0; text-align:left; }
+    body.modern-gimhae-ultra-v2 .match-overview-item-top { flex-direction:column; }
+    body.modern-gimhae-ultra-v2 .match-overview-stats { grid-template-columns:repeat(2, minmax(0,1fr)); }
+    body.modern-gimhae-ultra-v2 .match-overview-actions { justify-content:stretch; }
+    body.modern-gimhae-ultra-v2 .match-overview-open-btn { width:100%; }
+    body.modern-gimhae-ultra-v2 .match-overview-section-head { flex-direction:column; align-items:flex-start; }
+  }
+
+</style>
 
 <style>
   /* ===== modern gimhae ultra v2 ===== */
@@ -1303,6 +1499,97 @@
   }
 </style>
 
+
+<style>
+  /* === custom fixes: mobile match edit + clickable dashboard cards === */
+  .mobile-table-wrap{
+    width:100%;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+  .mobile-table-wrap .result-table{
+    min-width:560px;
+  }
+  .hero-stat.is-clickable{
+    cursor:pointer;
+    transition:transform .16s ease, box-shadow .16s ease, background .16s ease;
+  }
+  .hero-stat.is-clickable:hover{
+    transform:translateY(-1px);
+  }
+  .hero-stat.is-clickable:active{
+    transform:translateY(1px) scale(.99);
+  }
+  .hero-stat-note.action-note{
+    color:rgba(255,255,255,.82);
+  }
+  @media (max-width: 768px){
+    body.modern-gimhae-ultra-v2 #match-game .card{
+      padding:14px 12px;
+    }
+    body.modern-gimhae-ultra-v2 #match-game .gm-top-actions{
+      grid-template-columns:1fr;
+      gap:7px;
+    }
+    body.modern-gimhae-ultra-v2 #match-game .card-title > div:first-child{
+      width:100%;
+      min-width:0;
+    }
+    body.modern-gimhae-ultra-v2 #match-game #gameTitleDisplay{
+      display:block;
+      line-height:1.3;
+      word-break:keep-all;
+    }
+    body.modern-gimhae-ultra-v2 #match-game .result-table th,
+    body.modern-gimhae-ultra-v2 #match-game .result-table td{
+      font-size:.8rem;
+      padding:8px 6px;
+    }
+    body.modern-gimhae-ultra-v2 #match-game .match-card{
+      padding:11px !important;
+    }
+    body.modern-gimhae-ultra-v2 #match-game .match-card > div:nth-child(2){
+      display:grid !important;
+      grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
+      gap:10px !important;
+      align-items:center !important;
+    }
+    body.modern-gimhae-ultra-v2 #match-game .match-card > div:nth-child(2) > div:first-child,
+    body.modern-gimhae-ultra-v2 #match-game .match-card > div:nth-child(2) > div:last-child{
+      width:auto !important;
+      min-width:0;
+    }
+    body.modern-gimhae-ultra-v2 #match-game .match-p-line{
+      width:100%;
+      min-width:0;
+    }
+    body.modern-gimhae-ultra-v2 #match-game .name-box,
+    body.modern-gimhae-ultra-v2 #match-game input[type="text"][onchange^="editPlayerInMatch"]{
+      min-width:0;
+      width:100%;
+      white-space:normal;
+      word-break:keep-all;
+    }
+  }
+  @media (max-width: 430px){
+    body.modern-gimhae-ultra-v2 #match-game .card-title{
+      gap:8px !important;
+    }
+    body.modern-gimhae-ultra-v2 #match-game .gm-top-chip{
+      min-height:42px;
+    }
+    body.modern-gimhae-ultra-v2 #match-game .match-card > div:nth-child(2){
+      grid-template-columns:minmax(0,1fr) 94px minmax(0,1fr);
+      gap:8px !important;
+    }
+    body.modern-gimhae-ultra-v2 #match-game .score-select{
+      width:42px;
+      height:42px;
+      font-size:1rem;
+    }
+  }
+</style>
+
 </head>
 <body>
 
@@ -1497,12 +1784,14 @@
                 <button class="gm-top-chip" onclick="resetMatchScores()">↺ 점수 초기화</button>
             </div>
             
-            <table class="result-table" style="margin-bottom:15px;">
-                <thead>
-                    <tr><th style="border-radius:8px 0 0 8px;">위</th><th style="text-align:left;">이름</th><th>승</th><th>무</th><th>패</th><th>득</th><th>실</th><th>득실</th><th style="border-radius:0 8px 8px 0;">승점</th></tr>
-                </thead>
-                <tbody id="gameRankingBody"></tbody>
-            </table>
+            <div class="mobile-table-wrap">
+                <table class="result-table" style="margin-bottom:15px;">
+                    <thead>
+                        <tr><th style="border-radius:8px 0 0 8px;">위</th><th style="text-align:left;">이름</th><th>승</th><th>무</th><th>패</th><th>득</th><th>실</th><th>득실</th><th style="border-radius:0 8px 8px 0;">승점</th></tr>
+                    </thead>
+                    <tbody id="gameRankingBody"></tbody>
+                </table>
+            </div>
             
             <div id="tieBreakerBox" style="display:none;" class="tie-breaker-box">
                 <div style="font-weight:bold; color:#e65100; margin-bottom:5px; font-size:0.9rem;">⚠️ 동률 발생: 나이 입력 필요</div>
@@ -5274,6 +5563,8 @@ window.saveFolderDashboardAsImage = async () => {
     }
 }
 
+</script>
+
 <script>
 // =========================================================
 // ✅ Cloudflare 배포 안정화: 캐시/서비스워커로 인해 옛날 index.html이 뜨는 문제 방지
@@ -5479,11 +5770,16 @@ window.editPlayerInMatch = (matchId, teamNum, pIdx, newName) => {
     }
     if (pageId === 'page-match') {
       const official = document.querySelectorAll('#folderList .folder-item').length;
-      const cards = document.querySelectorAll('#matchesInFolderArea .match-card').length;
-      const folderName = textOf('#currentFolderName') || '폴더 선택';
+      const activeMatches = (window.matchHistory || []).filter(m => {
+        const totalCount = (m.matches || []).length;
+        const playedCount = (m.matches || []).filter(x => x.played).length;
+        return totalCount > 0 && playedCount > 0 && playedCount < totalCount;
+      });
+      const activeCount = activeMatches.length;
+      const activeGames = activeMatches.reduce((sum, m) => sum + ((m.matches || []).filter(x => x.played).length), 0);
       return [
         ['공식 폴더', `${official}개`, '게스트 별도'],
-        ['현재 매치', `${cards}건`, folderName],
+        ['현재매치 현황', activeCount ? `${activeCount}건` : '대기중', activeCount ? `진행 경기 ${activeGames}개` : '진행중 매치 없음'],
         ['운영 상태', document.getElementById('match-setup')?.style.display === 'none' ? '목록' : '설정중', '실시간 반영']
       ];
     }
@@ -5535,11 +5831,11 @@ window.editPlayerInMatch = (matchId, teamNum, pIdx, newName) => {
       const box = page.querySelector(':scope > .section-hero .hero-stats');
       if (!box) return;
       const stats = heroStatsFor(page.id);
-      box.innerHTML = stats.map(([label, value, note]) => `
-        <div class="hero-stat">
+      box.innerHTML = stats.map(([label, value, note], idx) => `
+        <div class="hero-stat is-clickable" onclick="handleHeroStatClick('${page.id}', ${idx})">
           <div class="hero-stat-label">${label}</div>
           <div class="hero-stat-value">${value}</div>
-          <div class="hero-stat-note">${note}</div>
+          <div class="hero-stat-note action-note">${note}</div>
         </div>
       `).join('');
     });
@@ -5585,6 +5881,200 @@ window.editPlayerInMatch = (matchId, teamNum, pIdx, newName) => {
   setInterval(() => {
     try { renderHeroStats(); updateTabCounts(); } catch(e) {}
   }, 2000);
+})();
+</script>
+
+
+<script>
+(function(){
+  function safeOpenMemberManager(){
+    if (typeof openMemberManager === 'function') {
+      if (window.isAdmin) openMemberManager();
+      else alert('회원 자료는 관리자 모드에서 열 수 있습니다.');
+    }
+  }
+  function safeScroll(selector){
+    const el = document.querySelector(selector);
+    if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+
+  function getMatchProgressInfo(match){
+    const total = (match.matches || []).length;
+    const played = (match.matches || []).filter(x => x.played).length;
+    const remaining = Math.max(total - played, 0);
+    let status = '준비';
+    if (total > 0 && played > 0 && played < total) status = '진행중';
+    else if (total > 0 && played === total) status = '완료';
+    const players = match.players || [];
+    const ranking = [...players].sort((a, b) => {
+      const ap = ((a.wins || 0) * 3) + (a.draws || 0);
+      const bp = ((b.wins || 0) * 3) + (b.draws || 0);
+      if (bp !== ap) return bp - ap;
+      return ((b.pointsFor || 0) - (b.pointsAgainst || 0)) - ((a.pointsFor || 0) - (a.pointsAgainst || 0));
+    });
+    const leader = ranking[0]?.name || '-';
+    return { total, played, remaining, status, leader, playerCount: players.length };
+  }
+
+  function ensureMatchOverviewModal(){
+    let modal = document.getElementById('matchOverviewModal');
+    if (modal) return modal;
+    modal = document.createElement('div');
+    modal.id = 'matchOverviewModal';
+    modal.className = 'match-overview-modal';
+    modal.innerHTML = `
+      <div class="match-overview-sheet" onclick="event.stopPropagation()">
+        <div class="match-overview-head">
+          <div>
+            <div class="match-overview-title">현재매치 현황</div>
+            <div class="match-overview-sub" id="matchOverviewSub">현재 진행 상태를 요약합니다.</div>
+          </div>
+          <button class="btn-action bg-gray" style="width:auto; margin:0; padding:8px 12px;" onclick="closeMatchOverviewModal()">닫기</button>
+        </div>
+        <div class="match-overview-summary" id="matchOverviewSummary"></div>
+        <div class="match-overview-list" id="matchOverviewList"></div>
+      </div>`;
+    modal.addEventListener('click', () => window.closeMatchOverviewModal());
+    document.body.appendChild(modal);
+    return modal;
+  }
+
+  window.closeMatchOverviewModal = function(){
+    const modal = document.getElementById('matchOverviewModal');
+    if (modal) modal.style.display = 'none';
+  };
+
+  window.openMatchOverviewModal = function(){
+    const modal = ensureMatchOverviewModal();
+    const allMatches = (window.matchHistory || []).slice().sort((a, b) => {
+      const dateCompare = (b.date || '').localeCompare(a.date || '');
+      if (dateCompare !== 0) return dateCompare;
+      return Number(b.id || 0) - Number(a.id || 0);
+    });
+    const rows = allMatches.map(match => ({ ...match, info: getMatchProgressInfo(match) }));
+    const summaryTarget = document.getElementById('matchOverviewSummary');
+    const listTarget = document.getElementById('matchOverviewList');
+    const subTarget = document.getElementById('matchOverviewSub');
+
+    const readyRows = rows.filter(row => row.info.status === '준비');
+    const activeRows = rows.filter(row => row.info.status === '진행중');
+    const doneRows = rows.filter(row => row.info.status === '완료');
+    const totalPlayedGames = rows.reduce((sum, row) => sum + row.info.played, 0);
+    const totalRemainingGames = rows.reduce((sum, row) => sum + row.info.remaining, 0);
+
+    summaryTarget.innerHTML = `
+      <div class="match-overview-sumcard"><div class="label">전체 매치</div><div class="value">${rows.length}건</div></div>
+      <div class="match-overview-sumcard"><div class="label">진행중</div><div class="value">${activeRows.length}건</div></div>
+      <div class="match-overview-sumcard"><div class="label">준비 / 완료</div><div class="value">${readyRows.length} / ${doneRows.length}</div></div>
+      <div class="match-overview-sumcard"><div class="label">완료된 경기</div><div class="value">${totalPlayedGames}경기</div></div>
+      <div class="match-overview-sumcard"><div class="label">남은 경기</div><div class="value">${totalRemainingGames}경기</div></div>
+      <div class="match-overview-sumcard"><div class="label">운영 상태</div><div class="value">${rows.length ? '운영중' : '대기중'}</div></div>`;
+    subTarget.textContent = rows.length
+      ? `준비됨, 진행중, 완료 매치를 한 번에 보는 운영 대시보드입니다. 총 ${rows.length}건을 표시합니다.`
+      : '표시할 매치가 없습니다.';
+
+    if (!rows.length) {
+      listTarget.innerHTML = '<div class="match-overview-empty">표시할 매치가 없습니다. 매치를 생성하면 이곳에서 전체 현황을 대시보드로 볼 수 있습니다.</div>';
+      modal.style.display = 'flex';
+      return;
+    }
+
+    function getStatusMeta(status){
+      if (status === '준비') return { title: '준비됨', cls: 'ready' };
+      if (status === '완료') return { title: '완료', cls: 'done' };
+      return { title: '진행중', cls: 'active' };
+    }
+
+    function renderSection(title, note, sectionRows){
+      if (!sectionRows.length) return '';
+      return `
+        <div class="match-overview-section">
+          <div class="match-overview-section-head">
+            <div class="match-overview-section-title">${title}</div>
+            <div class="match-overview-section-note">${note} · ${sectionRows.length}건</div>
+          </div>
+          <div class="match-overview-section-list">
+            ${sectionRows.map(row => {
+              const meta = getStatusMeta(row.info.status);
+              const progress = row.info.total > 0 ? Math.round((row.info.played / row.info.total) * 100) : 0;
+              return `
+                <div class="match-overview-item">
+                  <div>
+                    <div class="match-overview-item-top">
+                      <div>
+                        <div class="match-overview-item-folder">📂 ${row.date || '폴더 미지정'}</div>
+                        <div class="match-overview-item-title">${row.title || '무제 매치'}</div>
+                      </div>
+                      <span class="match-overview-status-chip ${meta.cls}">${meta.title}</span>
+                    </div>
+                    <div class="match-overview-item-meta">
+                      <span class="match-overview-pill">참가 ${row.info.playerCount}명</span>
+                      <span class="match-overview-pill">진행 ${row.info.played}/${row.info.total}</span>
+                      <span class="match-overview-pill">남은 경기 ${row.info.remaining}</span>
+                      <span class="match-overview-pill">현재 1위 ${row.info.leader}</span>
+                    </div>
+                    <div class="match-overview-progress"><div class="match-overview-progress-fill" style="width:${progress}%;"></div></div>
+                    <div class="match-overview-stats">
+                      <div class="match-overview-stat"><div class="label">진행률</div><div class="value">${progress}%</div></div>
+                      <div class="match-overview-stat"><div class="label">완료 경기</div><div class="value">${row.info.played}경기</div></div>
+                      <div class="match-overview-stat"><div class="label">남은 경기</div><div class="value">${row.info.remaining}경기</div></div>
+                      <div class="match-overview-stat"><div class="label">상태</div><div class="value">${row.info.status}</div></div>
+                    </div>
+                    <div class="match-overview-actions">
+                      <button class="match-overview-open-btn" onclick="loadMatchById('${row.id}'); closeMatchOverviewModal();">이 매치 열기</button>
+                    </div>
+                  </div>
+                </div>`;
+            }).join('')}
+          </div>
+        </div>`;
+    }
+
+    listTarget.innerHTML = [
+      renderSection('🔵 진행중 매치', '현재 경기 입력과 운영이 필요한 매치', activeRows),
+      renderSection('🟡 준비됨 매치', '대진 전 또는 시작 전 상태', readyRows),
+      renderSection('🟢 완료 매치', '기록 확인과 보관용 매치', doneRows)
+    ].join('');
+
+    modal.style.display = 'flex';
+  };
+  window.handleHeroStatClick = function(pageId, statIndex){
+    if (pageId === 'page-rank') {
+      if (statIndex === 0) return safeOpenMemberManager();
+      if (statIndex === 1) return safeScroll('#tierBoard');
+      if (statIndex === 2) return safeScroll('#unassignedArea');
+    }
+    if (pageId === 'page-match') {
+      if (statIndex === 0) {
+        goTab('match');
+        if (typeof closeFolder === 'function') closeFolder();
+        return setTimeout(() => safeScroll('#folderList'), 120);
+      }
+      if (statIndex === 1) {
+        goTab('match');
+        return setTimeout(() => openMatchOverviewModal(), 120);
+      }
+      if (statIndex === 2) {
+        goTab('match');
+        if (document.getElementById('match-setup')?.style.display === 'block') {
+          return setTimeout(() => safeScroll('#match-setup'), 120);
+        }
+        if (window.isAdmin && typeof createNewMatchInFolder === 'function') {
+          createNewMatchInFolder();
+          return;
+        }
+        return setTimeout(() => safeScroll('#match-folders'), 120);
+      }
+    }
+    if (pageId === 'page-team') {
+      if (statIndex === 0) return safeScroll('#teamFunStats');
+      if (statIndex === 1) return safeScroll('#teamWinRateChart');
+      if (statIndex === 2) return safeScroll('#teamTourneyList');
+    }
+    if (pageId === 'page-history') {
+      return goTab('history');
+    }
+  };
 })();
 </script>
 
