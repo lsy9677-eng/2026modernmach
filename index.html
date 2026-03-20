@@ -5944,6 +5944,30 @@ window.editPlayerInMatch = (matchId, teamNum, pIdx, newName) => {
     if (modal) modal.style.display = 'none';
   };
 
+
+  window.loadMatchById = function(id){
+    const m = (window.matchHistory || []).find(x => x.id == id);
+    if(!m) {
+      alert('매치를 찾지 못했습니다. 목록을 새로고침한 뒤 다시 시도해주세요.');
+      return;
+    }
+    try {
+      closeMatchOverviewModal();
+    } catch(e) {}
+    window.currentFolder = m.date || null;
+    try {
+      showPage('match');
+    } catch(e) {}
+    setTimeout(() => {
+      try {
+        loadMatchToEdit(id);
+      } catch(e) {
+        console.error(e);
+        alert('매치 화면을 여는 중 오류가 발생했습니다.');
+      }
+    }, 80);
+  }
+
   window.openMatchOverviewModal = function(){
     const modal = ensureMatchOverviewModal();
     const allMatches = (window.matchHistory || []).slice().sort((a, b) => {
