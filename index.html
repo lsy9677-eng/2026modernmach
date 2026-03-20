@@ -1506,10 +1506,23 @@
     width:100%;
     overflow-x:auto;
     -webkit-overflow-scrolling:touch;
+    padding-bottom:4px;
   }
   .mobile-table-wrap .result-table{
-    min-width:560px;
+    width:100%;
+    min-width:100%;
+    table-layout:fixed;
   }
+  .mobile-table-wrap .result-table th,
+  .mobile-table-wrap .result-table td{
+    white-space:nowrap;
+  }
+  .mobile-table-wrap .result-table th:nth-child(1),
+  .mobile-table-wrap .result-table td:nth-child(1){ width:34px; }
+  .mobile-table-wrap .result-table th:nth-child(2),
+  .mobile-table-wrap .result-table td:nth-child(2){ width:96px; }
+  .mobile-table-wrap .result-table th:nth-child(n+3),
+  .mobile-table-wrap .result-table td:nth-child(n+3){ width:40px; }
   .hero-stat.is-clickable{
     cursor:pointer;
     transition:transform .16s ease, box-shadow .16s ease, background .16s ease;
@@ -1542,8 +1555,26 @@
     }
     body.modern-gimhae-ultra-v2 #match-game .result-table th,
     body.modern-gimhae-ultra-v2 #match-game .result-table td{
-      font-size:.8rem;
-      padding:8px 6px;
+      font-size:.76rem;
+      padding:8px 4px;
+    }
+    body.modern-gimhae-ultra-v2 #match-game .mobile-table-wrap .result-table th:nth-child(2),
+    body.modern-gimhae-ultra-v2 #match-game .mobile-table-wrap .result-table td:nth-child(2){
+      text-align:left;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    body.modern-gimhae-ultra-v2 #match-game .mobile-table-wrap .result-table th:nth-child(1),
+    body.modern-gimhae-ultra-v2 #match-game .mobile-table-wrap .result-table td:nth-child(1){
+      width:32px;
+    }
+    body.modern-gimhae-ultra-v2 #match-game .mobile-table-wrap .result-table th:nth-child(2),
+    body.modern-gimhae-ultra-v2 #match-game .mobile-table-wrap .result-table td:nth-child(2){
+      width:88px;
+    }
+    body.modern-gimhae-ultra-v2 #match-game .mobile-table-wrap .result-table th:nth-child(n+3),
+    body.modern-gimhae-ultra-v2 #match-game .mobile-table-wrap .result-table td:nth-child(n+3){
+      width:36px;
     }
     body.modern-gimhae-ultra-v2 #match-game .match-card{
       padding:11px !important;
