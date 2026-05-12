@@ -10,7 +10,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>모던 테니스매니저 [Online] 🎾</title>
     <script>
-      const APP_VERSION = "2026-03-19-modern-gimhae-ultra-v6-responsive-result-bracket";
+      const APP_VERSION = "2026-05-12-modern-header-clean-v8";
       (function forceUpdateOnNewVersion() {
         const key = "APP_VERSION_MODERN_GIMHAE";
         const prev = localStorage.getItem(key);
@@ -6159,6 +6159,410 @@ window.editPlayerInMatch = (matchId, teamNum, pIdx, newName) => {
       return goTab('history');
     }
   };
+})();
+</script>
+
+
+
+<!-- =========================================================
+  v8: 상단 메뉴 간결화 완성 패치
+  - 일반회원: 로고 + 앱명 + 로그인만 노출
+  - 관리자: 운영중 배지 + 더보기 메뉴(회원관리/백업/설정/로그아웃)
+  - 기존 기능 함수는 그대로 사용
+========================================================= -->
+<style id="compactHeaderV8Style">
+  body.modern-header-clean-v8 {
+    --mhc-navy: #0b1730;
+    --mhc-navy2: #14264b;
+    --mhc-gold: #d4a017;
+    --mhc-soft: rgba(255,255,255,.10);
+    padding-top: 0 !important;
+  }
+
+  body.modern-header-clean-v8 header {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 500 !important;
+    min-height: 62px !important;
+    height: auto !important;
+    padding: 10px 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 10px !important;
+    background: linear-gradient(135deg, #081326 0%, #0f1e3a 62%, #182f5c 100%) !important;
+    box-shadow: 0 8px 22px rgba(6, 14, 32, .26) !important;
+    border-bottom: 1px solid rgba(255,216,107,.22) !important;
+  }
+
+  body.modern-header-clean-v8 header::after { display:none !important; }
+
+  .mhc-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    flex: 1;
+  }
+
+  .mhc-logo {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex: 0 0 42px;
+    box-shadow: 0 0 0 1px rgba(255,216,107,.25), 0 6px 16px rgba(212,160,23,.22);
+    background: rgba(255,255,255,.06);
+  }
+
+  .mhc-title-wrap {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    line-height: 1.1;
+  }
+
+  .mhc-title {
+    color: #fff;
+    font-weight: 900;
+    font-size: 1.06rem;
+    letter-spacing: -.035em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 58vw;
+    cursor: pointer;
+  }
+
+  .mhc-sub {
+    margin-top: 4px;
+    color: rgba(255,255,255,.58);
+    font-size: .62rem;
+    font-weight: 800;
+    letter-spacing: .16em;
+    white-space: nowrap;
+  }
+
+  .mhc-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 7px;
+    flex: 0 0 auto;
+  }
+
+  .mhc-status {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    height: 34px;
+    padding: 0 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,216,107,.30);
+    background: rgba(212,160,23,.13);
+    color: #ffe39a;
+    font-size: .72rem;
+    font-weight: 900;
+    white-space: nowrap;
+  }
+
+  body.mhc-admin-on .mhc-status { display:inline-flex; }
+
+  .mhc-icon-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 15px;
+    border: 1px solid rgba(255,255,255,.13);
+    background: rgba(255,255,255,.09);
+    color: #fff;
+    font-size: 1.08rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+  }
+
+  .mhc-icon-btn:active { transform: scale(.97); background: rgba(255,255,255,.16); }
+  #mhcAdminMenuBtn { display:none; }
+  body.mhc-admin-on #mhcAdminMenuBtn { display:inline-flex; }
+
+  .mhc-admin-sheet-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 6000;
+    display: none;
+    background: rgba(5, 12, 27, .54);
+    backdrop-filter: blur(5px);
+    align-items: flex-end;
+    justify-content: center;
+    padding: 14px;
+  }
+
+  .mhc-admin-sheet-backdrop.show { display:flex; }
+
+  .mhc-admin-sheet {
+    width: min(460px, 100%);
+    background: linear-gradient(180deg, #fff 0%, #f7f9fd 100%);
+    border: 1px solid #dbe3ef;
+    border-radius: 24px;
+    padding: 14px;
+    box-shadow: 0 24px 60px rgba(7,16,40,.34);
+  }
+
+  .mhc-sheet-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 4px 12px;
+    border-bottom: 1px solid #e6ebf3;
+    margin-bottom: 10px;
+  }
+
+  .mhc-sheet-title {
+    font-size: 1rem;
+    font-weight: 900;
+    color: #0f1e3a;
+    letter-spacing: -.02em;
+  }
+
+  .mhc-sheet-close {
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: 12px;
+    background: #eef2f8;
+    color: #203456;
+    font-weight: 900;
+    cursor: pointer;
+  }
+
+  .mhc-menu-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 9px;
+  }
+
+  .mhc-menu-item {
+    min-height: 72px;
+    border: 1px solid #dce4f0;
+    border-radius: 17px;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 5px;
+    padding: 12px;
+    cursor: pointer;
+    box-shadow: 0 7px 18px rgba(15,30,58,.06);
+    font-family: inherit;
+    text-align: left;
+  }
+
+  .mhc-menu-item:active { transform: translateY(1px); }
+  .mhc-menu-ico { font-size: 1.3rem; line-height: 1; }
+  .mhc-menu-name { font-size: .9rem; font-weight: 900; color: #0f1e3a; }
+  .mhc-menu-desc { font-size: .72rem; font-weight: 700; color: #718096; }
+  .mhc-menu-item.danger { background:#fff5f5; border-color:#ffd4d4; }
+  .mhc-menu-item.danger .mhc-menu-name { color:#b42318; }
+
+  body.modern-header-clean-v8 .header-brand-row,
+  body.modern-header-clean-v8 header > .app-title,
+  body.modern-header-clean-v8 header > .header-btns,
+  body.modern-header-clean-v8 .header-pills,
+  body.modern-header-clean-v8 .header-subline:not(.mhc-sub),
+  body.modern-header-clean-v8 .quick-toolbar {
+    display: none !important;
+  }
+
+  body.modern-header-clean-v8 .section-hero {
+    display: none !important;
+  }
+
+  body.modern-header-clean-v8 .container {
+    padding-top: 10px !important;
+  }
+
+  body.modern-header-clean-v8 .nav-text {
+    font-size: 0 !important;
+  }
+  body.modern-header-clean-v8 .nav-item:nth-child(1) .nav-text::before { content:'홈'; font-size:.78rem; }
+  body.modern-header-clean-v8 .nav-item:nth-child(2) .nav-text::before { content:'경기'; font-size:.78rem; }
+  body.modern-header-clean-v8 .nav-item:nth-child(3) .nav-text::before { content:'단체전'; font-size:.78rem; }
+  body.modern-header-clean-v8 .nav-item:nth-child(4) .nav-text::before { content:'기록'; font-size:.78rem; }
+  body.modern-header-clean-v8 .tab-count { font-size:.63rem !important; }
+
+  @media (max-width: 430px) {
+    body.modern-header-clean-v8 header {
+      min-height: 58px !important;
+      padding: 8px 10px !important;
+    }
+    .mhc-logo { width: 38px; height: 38px; flex-basis: 38px; }
+    .mhc-title { font-size: 1rem; max-width: 52vw; }
+    .mhc-sub { font-size: .56rem; letter-spacing: .14em; }
+    .mhc-icon-btn { width: 40px; height: 40px; border-radius: 14px; }
+    .mhc-status { display:none !important; }
+    .mhc-menu-grid { grid-template-columns: 1fr; }
+    .mhc-menu-item { min-height: 62px; }
+  }
+</style>
+
+<script id="compactHeaderV8Script">
+(function(){
+  const LOGO_SRC = './icon-192.png';
+  const SUB_TITLE = 'MODERN TENNIS MATCH MANAGER';
+
+  function closeSheet(){
+    const sheet = document.getElementById('mhcAdminSheet');
+    if (sheet) sheet.classList.remove('show');
+  }
+
+  function openSheet(){
+    syncAdminState();
+    if (!window.isAdmin) {
+      if (typeof toggleAdmin === 'function') toggleAdmin();
+      return;
+    }
+    const sheet = ensureSheet();
+    sheet.classList.add('show');
+  }
+
+  function runAdminAction(fnName){
+    closeSheet();
+    setTimeout(function(){
+      if (typeof window[fnName] === 'function') window[fnName]();
+      else alert('해당 기능을 불러오지 못했습니다. 새로고침 후 다시 시도해주세요.');
+    }, 80);
+  }
+
+  function logoutAdmin(){
+    closeSheet();
+    if (typeof toggleAdmin === 'function') toggleAdmin();
+  }
+
+  function ensureSheet(){
+    let sheet = document.getElementById('mhcAdminSheet');
+    if (sheet) return sheet;
+    sheet = document.createElement('div');
+    sheet.id = 'mhcAdminSheet';
+    sheet.className = 'mhc-admin-sheet-backdrop';
+    sheet.innerHTML = `
+      <div class="mhc-admin-sheet" onclick="event.stopPropagation()">
+        <div class="mhc-sheet-head">
+          <div class="mhc-sheet-title">관리자 메뉴</div>
+          <button type="button" class="mhc-sheet-close" id="mhcSheetCloseBtn">×</button>
+        </div>
+        <div class="mhc-menu-grid">
+          <button type="button" class="mhc-menu-item" data-fn="openMemberManager">
+            <span class="mhc-menu-ico">👥</span>
+            <span class="mhc-menu-name">회원관리</span>
+            <span class="mhc-menu-desc">회원 등록 · 수정 · 삭제</span>
+          </button>
+          <button type="button" class="mhc-menu-item" data-fn="openBackupModal">
+            <span class="mhc-menu-ico">💾</span>
+            <span class="mhc-menu-name">백업/복구</span>
+            <span class="mhc-menu-desc">엑셀 · JSON · 인쇄</span>
+          </button>
+          <button type="button" class="mhc-menu-item" data-fn="openAdminSettings">
+            <span class="mhc-menu-ico">⚙️</span>
+            <span class="mhc-menu-name">앱 설정</span>
+            <span class="mhc-menu-desc">조 이름 · 관리자 안내</span>
+          </button>
+          <button type="button" class="mhc-menu-item" data-fn="openMVPModal">
+            <span class="mhc-menu-ico">🏆</span>
+            <span class="mhc-menu-name">MVP 랭킹</span>
+            <span class="mhc-menu-desc">시즌 점수 확인</span>
+          </button>
+          <button type="button" class="mhc-menu-item danger" id="mhcLogoutBtn">
+            <span class="mhc-menu-ico">🔓</span>
+            <span class="mhc-menu-name">관리자 종료</span>
+            <span class="mhc-menu-desc">로그아웃 및 일반모드</span>
+          </button>
+        </div>
+      </div>`;
+    sheet.addEventListener('click', closeSheet);
+    document.body.appendChild(sheet);
+    document.getElementById('mhcSheetCloseBtn').addEventListener('click', closeSheet);
+    document.getElementById('mhcLogoutBtn').addEventListener('click', logoutAdmin);
+    sheet.querySelectorAll('[data-fn]').forEach(btn => {
+      btn.addEventListener('click', function(){ runAdminAction(this.dataset.fn); });
+    });
+    return sheet;
+  }
+
+  function getExistingTitle(){
+    const oldTitle = document.getElementById('appTitleText');
+    const text = (oldTitle && oldTitle.textContent.trim()) || '모던 테니스 클럽';
+    return text;
+  }
+
+  function buildHeader(){
+    const header = document.querySelector('header');
+    if (!header) return;
+    if (header.dataset.compactV8 === '1') return;
+
+    const currentTitle = getExistingTitle();
+    header.dataset.compactV8 = '1';
+    header.innerHTML = `
+      <div class="mhc-brand">
+        <img class="mhc-logo" src="${LOGO_SRC}" alt="모던 테니스 클럽 로고" onerror="this.style.display='none'">
+        <div class="mhc-title-wrap">
+          <span id="appTitleText" class="mhc-title" title="관리자 모드에서 제목 수정" onclick="if(typeof editAppTitle==='function') editAppTitle();">${currentTitle}</span>
+          <span class="mhc-sub">${SUB_TITLE}</span>
+        </div>
+      </div>
+      <div class="mhc-actions">
+        <span class="mhc-status">운영중</span>
+        <button id="mhcAdminMenuBtn" type="button" class="mhc-icon-btn" title="관리자 메뉴">⋮</button>
+        <button id="btnLogin" type="button" class="mhc-icon-btn" title="관리자 로그인" onclick="if(typeof toggleAdmin==='function') toggleAdmin();">🔒</button>
+      </div>`;
+
+    document.getElementById('mhcAdminMenuBtn').addEventListener('click', openSheet);
+    ensureSheet();
+    syncAdminState();
+  }
+
+  function syncAdminState(){
+    const isAdmin = !!window.isAdmin;
+    document.body.classList.toggle('mhc-admin-on', isAdmin);
+    const login = document.getElementById('btnLogin');
+    if (login) {
+      login.textContent = isAdmin ? '🔓' : '🔒';
+      login.title = isAdmin ? '관리자 로그아웃' : '관리자 로그인';
+    }
+  }
+
+  function renameBottomNav(){
+    const labels = ['홈','경기','단체전','기록'];
+    document.querySelectorAll('.nav-bar .nav-item .nav-text').forEach((el, i) => {
+      const badge = el.querySelector('.tab-count');
+      el.childNodes.forEach(node => { if (node.nodeType === Node.TEXT_NODE) node.textContent = labels[i] || node.textContent; });
+      if (!el.childNodes.length || el.childNodes[0].nodeType !== Node.TEXT_NODE) el.insertBefore(document.createTextNode(labels[i] || ''), el.firstChild);
+      if (badge && badge.parentElement !== el) el.appendChild(badge);
+    });
+  }
+
+  function init(){
+    document.body.classList.add('modern-header-clean-v8');
+    buildHeader();
+    renameBottomNav();
+    syncAdminState();
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+  window.addEventListener('load', function(){ setTimeout(init, 100); });
+  setInterval(function(){
+    try {
+      buildHeader();
+      renameBottomNav();
+      syncAdminState();
+    } catch(e) {}
+  }, 700);
+
+  window.mhcCloseAdminSheet = closeSheet;
 })();
 </script>
 
