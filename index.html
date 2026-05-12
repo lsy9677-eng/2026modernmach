@@ -10,7 +10,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>모던 테니스매니저 [Online] 🎾</title>
     <script>
-      const APP_VERSION = "2026-05-12-modern-header-clean-v8";
+      const APP_VERSION = "2026-05-13-mvp-rank-diff-fix-v1";
       (function forceUpdateOnNewVersion() {
         const key = "APP_VERSION_MODERN_GIMHAE";
         const prev = localStorage.getItem(key);
@@ -4676,7 +4676,7 @@ window.calculateMVP = function(targetYear) {
                 // ★ 대회 당시 tier 스냅샷 우선 사용
                 const tier = p.tier ||
                     window.rankingData?.tiers?.[window.allMembers.find(x => x.name === p.name)?.phone] || '기타';
-                tempStats[p.name] = { name: p.name, pts: 0, diff: 0, age: p.age || 0, tier };
+                tempStats[p.name] = { name: p.name, pts: 0, diff: 0, scored: 0, wins: 0, age: p.age || 0, tier };
                 addPoint(p.name, 10, `[참가] ${matchTitle}`, matchDate, `${m.id}_참가_${p.name}`);
             });
         }
@@ -4686,37 +4686,38 @@ window.calculateMVP = function(targetYear) {
             getNames(g.t1).forEach(name => {
                 if (!tempStats[name]) return;
                 tempStats[name].diff += diff;
-                if (diff > 0) tempStats[name].pts += 2;
+                tempStats[name].scored += s1;
+                if (diff > 0) { tempStats[name].pts += 2; tempStats[name].wins += 1; }
                 else if (diff === 0) tempStats[name].pts += 1;
             });
             getNames(g.t2).forEach(name => {
                 if (!tempStats[name]) return;
                 tempStats[name].diff -= diff;
-                if (diff < 0) tempStats[name].pts += 2;
+                tempStats[name].scored += s2;
+                if (diff < 0) { tempStats[name].pts += 2; tempStats[name].wins += 1; }
                 else if (diff === 0) tempStats[name].pts += 1;
             });
         });
 
-        const tierGroups = {};
-        Object.values(tempStats).forEach(stat => {
-            if (!tierGroups[stat.tier]) tierGroups[stat.tier] = [];
-            tierGroups[stat.tier].push(stat);
+        // ✅ MVP 성적점수는 화면에 보이는 매치 최종 순위와 동일하게 산정한다.
+        // 기존 tier별 재그룹 방식은 B/B(-) 혼합 경기에서 각 조 1위가 따로 생겨
+        // 실제 순위표는 1위/2위인데 MVP에는 1위가 2명으로 표시되는 문제가 있었다.
+        const overallGroup = Object.values(tempStats).sort((a, b) => {
+            if (b.pts !== a.pts) return b.pts - a.pts;
+            if (b.diff !== a.diff) return b.diff - a.diff;
+            if ((b.wins || 0) !== (a.wins || 0)) return (b.wins || 0) - (a.wins || 0);
+            if ((b.scored || 0) !== (a.scored || 0)) return (b.scored || 0) - (a.scored || 0);
+            if ((b.age || 0) !== (a.age || 0)) return (b.age || 0) - (a.age || 0);
+            return String(a.name || '').localeCompare(String(b.name || ''), 'ko');
         });
-        Object.keys(tierGroups).forEach(tier => {
-            const group = tierGroups[tier];
-            group.sort((a, b) => {
-                if (b.pts !== a.pts) return b.pts - a.pts;
-                if (b.diff !== a.diff) return b.diff - a.diff;
-                return (b.age||0) - (a.age||0);
-            });
-            if (group.length < 2) return;
-            const rankPts = [10, 5, 3], rankLabel = ['1위','2위','3위'];
-            group.slice(0, 3).forEach((player, i) => {
-                addPoint(player.name, rankPts[i],
-                    `[${rankLabel[i]}] ${matchTitle} (${tier}조) 승점${player.pts}/득실${player.diff>=0?'+':''}${player.diff}`,
-                    matchDate,
-                    `${m.id}_${rankLabel[i]}_${tier}_${player.name}`);
-            });
+
+        const rankPts = [10, 5, 3];
+        const rankLabel = ['1위','2위','3위'];
+        overallGroup.slice(0, 3).forEach((player, i) => {
+            addPoint(player.name, rankPts[i],
+                `[${rankLabel[i]}] ${matchTitle} 승점${player.pts}/득실${player.diff>=0?'+':''}${player.diff}`,
+                matchDate,
+                `${m.id}_overall_rank_v10_${i+1}_${player.name}`);
         });
     });
 
@@ -5631,7 +5632,7 @@ window.saveFolderDashboardAsImage = async () => {
 // - 최초 1회: 기존 SW/캐시 정리 후 새로고침
 // =========================================================
 (async function PURGE_OLD_CACHES_ONCE(){
-  const key = 'PURGE_SW_CACHE_DONE_MANAGER_v20260122_055702';
+  const key = 'PURGE_SW_CACHE_DONE_MANAGER_v20260513_MVP_RANK_FIX_v1';
   if (localStorage.getItem(key) === '1') return;
   try {
     if ('serviceWorker' in navigator) {
