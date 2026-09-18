@@ -339,6 +339,13 @@
             box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
         .player-tags .tag.is-seed { border-color: var(--seed-color); background-color: #FFF3E0; font-weight: bold; color: #E65100; }
+        .player-handicap-controls { display:inline-flex; gap:3px; margin-left:7px; vertical-align:middle; }
+        .player-handicap-btn { border:1px solid #ffb74d; background:#fff; color:#e65100; border-radius:9px; padding:2px 6px; font-size:0.72rem; font-weight:700; cursor:pointer; }
+        .player-handicap-btn.active { background:#ff9800; color:#fff; border-color:#f57c00; }
+        .handicap-badge { display:inline-block; margin-top:3px; padding:2px 7px; border-radius:10px; background:#fff3e0; color:#e65100; border:1px solid #ffcc80; font-size:0.7rem; font-weight:800; }
+        .match-handicap-box { display:flex; justify-content:center; align-items:center; gap:3px; margin-top:4px; }
+        .match-handicap-box button { border:1px solid #ffb74d; background:#fff; color:#e65100; border-radius:8px; padding:2px 5px; font-size:0.68rem; font-weight:700; cursor:pointer; }
+        .match-handicap-box button.active { background:#ff9800; color:#fff; }
         
         /* 사다리 게임 */
         .ladder-group { background: #fff; border-radius: 12px; padding: 15px; margin-bottom: 10px; box-shadow: var(--shadow-sm); border: 1px solid #eee; }
@@ -1795,6 +1802,7 @@
             </div>
             
             <div style="font-size:0.8rem; color:#888; margin:5px 0;">💡 이름을 누르면 시드/일반 상태가 변경됩니다.</div>
+            <div style="font-size:0.8rem; color:#e65100; margin:5px 0;">🎯 관리자: 선수별 핸디 0·+1·+2를 선택하세요. 복식 팀에는 두 선수 중 높은 핸디가 적용됩니다.</div>
            <div class="player-tags" id="matchPlayerList" style="margin-bottom:15px; min-height:40px;"></div>
 
 <div class="gm-action-panel">
@@ -2786,7 +2794,7 @@ window.matchHistory = [];
 
         window.currentMatch.players.push({ 
             name, isSeed: isSeed, id: Date.now()+Math.random(), 
-            wins:0, draws:0, losses:0, scored:0, conceded:0, pts:0, diff:0, num:0, age:0 
+            handicap:0, wins:0, draws:0, losses:0, scored:0, conceded:0, pts:0, diff:0, num:0, age:0 
         });
         
         document.getElementById('inputPlayerName').value = '';
@@ -2803,9 +2811,21 @@ window.matchHistory = [];
         document.getElementById('matchPlayerList').innerHTML = window.currentMatch.players.map((p,i) => `
             <div class="tag ${p.isSeed?'is-seed':''}" onclick="togglePlayerSeedStatus(${i})">
                 ${p.isSeed ? selectedIcon : ''} ${p.name}
+                ${window.isAdmin ? `<span class="player-handicap-controls" onclick="event.stopPropagation()">
+                    ${[0,1,2].map(h=>`<button type="button" class="player-handicap-btn ${(parseInt(p.handicap)||0)===h?'active':''}" onclick="setPlayerHandicap(${i},${h},event)">${h===0?'0':'+'+h}</button>`).join('')}
+                </span>` : ((parseInt(p.handicap)||0)>0 ? `<span class="handicap-badge">+${parseInt(p.handicap)}</span>` : '')}
                 <span style="margin-left:8px; color:#ff6b6b; font-weight:bold;" onclick="removeMatchPlayer(${i}, event)">&times;</span>
             </div>
         `).join('');
+    }
+
+    window.setPlayerHandicap = (idx, value, e) => {
+        if(e) e.stopPropagation();
+        if(!window.isAdmin) return;
+        const p = window.currentMatch.players[idx];
+        if(!p) return;
+        p.handicap = Math.max(0, Math.min(2, parseInt(value) || 0));
+        renderMatchPlayers();
     }
 
     window.removeMatchPlayer = (idx, e) => {
@@ -2993,12 +3013,19 @@ window.matchHistory = [];
         });
         
         const schedule = FIXED_SCHEDULES[cnt];
+        const teamHandicap = team => Math.max(0, ...team.map(p => Math.max(0, Math.min(2, parseInt(p.handicap) || 0))));
         window.currentMatch.matches = schedule.map((s, i) => ({
             id: i, 
             t1: [window.currentMatch.players[s[0]-1], window.currentMatch.players[s[1]-1]], 
             t2: [window.currentMatch.players[s[2]-1], window.currentMatch.players[s[3]-1]], 
-            s1:0, s2:0, played:false
-        }));
+            s1:0, s2:0, h1:0, h2:0, played:false
+        })).map(m => {
+            m.h1 = teamHandicap(m.t1);
+            m.h2 = teamHandicap(m.t2);
+            m.s1 = m.h1;
+            m.s2 = m.h2;
+            return m;
+        });
         
         saveMatchToFirebase();
         document.getElementById('match-ladder').style.display='none';
@@ -3011,6 +3038,7 @@ function renderGameUI() {
     const div = document.getElementById('gameMatchList');
     const seedIcon = window.currentMatch.seedIcon || '👑';
 
+    normalizeMatchHandicaps(window.currentMatch);
     div.innerHTML = window.currentMatch.matches.map(m => {
         const p1 = m.t1[0], p2 = m.t1[1], p3 = m.t2[0], p4 = m.t2[1];
         
@@ -3040,19 +3068,21 @@ function renderGameUI() {
                 <div style="text-align:left; width:42%;">
                     ${renderPlayer(p1, 1, 0, 'left')}
                     ${renderPlayer(p2, 1, 1, 'left')}
+                    ${renderTeamHandicapControls(m, 1)}
                 </div>
                 <div style="display:flex; align-items:center; gap:3px;">
                     <select class="score-select" onchange="updateScore(${m.id}, 1, this.value)">
-                        ${[0,1,2,3,4,5,6].map(n=>`<option value="${n}" ${m.s1==n?'selected':''}>${n}</option>`).join('')}
+                        ${[0,1,2,3,4,5,6].map(n=>`<option value="${n}" ${m.s1==n?'selected':''} ${n<m.h1?'disabled':''}>${n}</option>`).join('')}
                     </select>
                     <span>:</span>
                     <select class="score-select" onchange="updateScore(${m.id}, 2, this.value)">
-                        ${[0,1,2,3,4,5,6].map(n=>`<option value="${n}" ${m.s2==n?'selected':''}>${n}</option>`).join('')}
+                        ${[0,1,2,3,4,5,6].map(n=>`<option value="${n}" ${m.s2==n?'selected':''} ${n<m.h2?'disabled':''}>${n}</option>`).join('')}
                     </select>
                 </div>
                 <div style="text-align:right; width:42%;">
                     ${renderPlayer(p3, 2, 0, 'right')}
                     ${renderPlayer(p4, 2, 1, 'right')}
+                    ${renderTeamHandicapControls(m, 2)}
                 </div>
             </div>
         </div>`;
@@ -3067,16 +3097,52 @@ function renderGameUI() {
     }
     updateGameRanking();
 }
+
+    function normalizeMatchHandicaps(match) {
+        if(!match) return;
+        (match.players || []).forEach(p => p.handicap = Math.max(0, Math.min(2, parseInt(p.handicap) || 0)));
+        (match.matches || []).forEach(m => {
+            m.h1 = Math.max(0, Math.min(2, parseInt(m.h1) || 0));
+            m.h2 = Math.max(0, Math.min(2, parseInt(m.h2) || 0));
+            m.s1 = Math.max(m.h1, parseInt(m.s1) || 0);
+            m.s2 = Math.max(m.h2, parseInt(m.s2) || 0);
+        });
+    }
+
+    function renderTeamHandicapControls(m, team) {
+        const h = team === 1 ? m.h1 : m.h2;
+        if(window.isAdmin) {
+            return `<div class="match-handicap-box"><span class="handicap-badge">핸디 +${h}</span>${[0,1,2].map(v=>`<button type="button" class="${h===v?'active':''}" onclick="setMatchHandicap(${m.id},${team},${v})">${v===0?'0':'+'+v}</button>`).join('')}</div>`;
+        }
+        return h > 0 ? `<div><span class="handicap-badge">핸디 +${h}</span></div>` : '';
+    }
+
+    window.setMatchHandicap = (mid, team, value) => {
+        if(!window.isAdmin) return;
+        const m = window.currentMatch.matches.find(x=>x.id===mid);
+        if(!m) return;
+        const key = team === 1 ? 'h1' : 'h2';
+        const scoreKey = team === 1 ? 's1' : 's2';
+        const oldH = parseInt(m[key]) || 0;
+        const newH = Math.max(0, Math.min(2, parseInt(value) || 0));
+        if(oldH === newH) return;
+        const earned = Math.max(0, (parseInt(m[scoreKey]) || 0) - oldH);
+        if((m.played || earned > 0) && !confirm(`이미 입력된 경기입니다. 핸디를 +${oldH}에서 +${newH}(으)로 변경하시겠습니까?\n실제 획득점수 ${earned}점은 유지됩니다.`)) return;
+        m[key] = newH;
+        m[scoreKey] = Math.min(6, earned + newH);
+        saveMatchToFirebase();
+        renderGameUI();
+    }
     window.updateScore = (mid, team, val) => {
         const m = window.currentMatch.matches.find(x=>x.id===mid);
         if(team===1) m.s1 = parseInt(val); else m.s2 = parseInt(val);
       // 관리자면: played를 "false로 되돌리지 않도록" 보호
 if (window.isAdmin) {
   // 이미 체크되어 있으면 유지, 아니면 점수 입력시 true로만 올림
-  m.played = m.played || (m.s1 > 0 || m.s2 > 0);
+  m.played = m.played || (m.s1 > (m.h1||0) || m.s2 > (m.h2||0));
 } else {
   // 일반 사용자는 기존 자동 처리 유지
-  m.played = (m.s1 > 0 || m.s2 > 0);
+  m.played = (m.s1 > (m.h1||0) || m.s2 > (m.h2||0));
 }
 
         
@@ -3085,9 +3151,9 @@ if (window.isAdmin) {
     }
     
     window.resetMatchScores = () => {
-        if(!confirm("현재 매치의 모든 점수를 0:0으로 초기화하시겠습니까?")) return;
+        if(!confirm("현재 매치의 모든 경기점수를 초기화하시겠습니까?\n설정된 핸디 시작점수는 유지됩니다.")) return;
         window.currentMatch.matches.forEach(m => {
-            m.s1 = 0; m.s2 = 0; m.played = false;
+            m.s1 = parseInt(m.h1) || 0; m.s2 = parseInt(m.h2) || 0; m.played = false;
         });
         window.currentMatch.players.forEach(p => {
              p.wins=0; p.draws=0; p.losses=0; p.scored=0; p.conceded=0; p.pts=0; p.diff=0;
@@ -3557,9 +3623,9 @@ if (window.isAdmin) {
         m.matches.forEach((g, idx) => {
             if(!g.played) return;
             html += `<div style="background:#f9f9f9; padding:8px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; font-size:0.9rem;">
-                        <span style="width:40%; text-align:left;">${g.t1[0].name},${g.t1[1].name}</span>
+                        <span style="width:40%; text-align:left;">${g.t1[0].name},${g.t1[1].name}${(g.h1||0)>0?` <span class="handicap-badge">+${g.h1}</span>`:''}</span>
                         <span style="font-weight:bold;">${g.s1} : ${g.s2}</span>
-                        <span style="width:40%; text-align:right;">${g.t2[0].name},${g.t2[1].name}</span>
+                        <span style="width:40%; text-align:right;">${(g.h2||0)>0?`<span class="handicap-badge">+${g.h2}</span> `:''}${g.t2[0].name},${g.t2[1].name}</span>
                      </div>`;
         });
         
@@ -3578,6 +3644,7 @@ if (window.isAdmin) {
         const m = window.matchHistory.find(x => x.id == id);
         if(m) {
             window.currentMatch = JSON.parse(JSON.stringify(m));
+            normalizeMatchHandicaps(window.currentMatch);
             document.getElementById('match-folders').style.display='none';
             document.getElementById('match-list-in-folder').style.display='none';
             document.getElementById('match-game').style.display='block';
@@ -4694,9 +4761,11 @@ window.calculateMVP = function(targetYear) {
         const matchDate = m.date;
 
         // ★ 0:0 경기 제외 - 실제 득점 있는 경기만 유효
-        const validGames = (m.matches || []).filter(g =>
-            g.played && (parseInt(g.s1||0) + parseInt(g.s2||0)) > 0
-        );
+        const validGames = (m.matches || []).filter(g => {
+            const actual1 = Math.max(0, (parseInt(g.s1)||0) - (parseInt(g.h1)||0));
+            const actual2 = Math.max(0, (parseInt(g.s2)||0) - (parseInt(g.h2)||0));
+            return g.played && (actual1 + actual2) > 0;
+        });
         if (validGames.length === 0) return; // 진행중 대회 → 전체 스킵
 
         const getNames = (team) => {
@@ -4716,24 +4785,29 @@ window.calculateMVP = function(targetYear) {
                 // ★ 대회 당시 tier 스냅샷 우선 사용
                 const tier = p.tier ||
                     window.rankingData?.tiers?.[window.allMembers.find(x => x.name === p.name)?.phone] || '기타';
-                tempStats[p.name] = { name: p.name, pts: 0, diff: 0, scored: 0, wins: 0, age: p.age || 0, tier };
+                tempStats[p.name] = { name: p.name, pts: 0, diff: 0, officialDiff: 0, scored: 0, wins: 0, age: p.age || 0, tier };
                 addPoint(p.name, 10, `[참가] ${matchTitle}`, matchDate, `${m.id}_참가_${p.name}`);
             });
         }
 
         validGames.forEach(g => {
             const s1 = parseInt(g.s1||0), s2 = parseInt(g.s2||0), diff = s1 - s2;
+            const actual1 = Math.max(0, s1 - (parseInt(g.h1)||0));
+            const actual2 = Math.max(0, s2 - (parseInt(g.h2)||0));
+            const actualDiff = actual1 - actual2;
             getNames(g.t1).forEach(name => {
                 if (!tempStats[name]) return;
-                tempStats[name].diff += diff;
-                tempStats[name].scored += s1;
+                tempStats[name].diff += actualDiff;
+                tempStats[name].officialDiff += diff;
+                tempStats[name].scored += actual1;
                 if (diff > 0) { tempStats[name].pts += 2; tempStats[name].wins += 1; }
                 else if (diff === 0) tempStats[name].pts += 1;
             });
             getNames(g.t2).forEach(name => {
                 if (!tempStats[name]) return;
-                tempStats[name].diff -= diff;
-                tempStats[name].scored += s2;
+                tempStats[name].diff -= actualDiff;
+                tempStats[name].officialDiff -= diff;
+                tempStats[name].scored += actual2;
                 if (diff < 0) { tempStats[name].pts += 2; tempStats[name].wins += 1; }
                 else if (diff === 0) tempStats[name].pts += 1;
             });
@@ -4744,7 +4818,7 @@ window.calculateMVP = function(targetYear) {
         // 실제 순위표는 1위/2위인데 MVP에는 1위가 2명으로 표시되는 문제가 있었다.
         const overallGroup = Object.values(tempStats).sort((a, b) => {
             if (b.pts !== a.pts) return b.pts - a.pts;
-            if (b.diff !== a.diff) return b.diff - a.diff;
+            if (b.officialDiff !== a.officialDiff) return b.officialDiff - a.officialDiff;
             if ((b.wins || 0) !== (a.wins || 0)) return (b.wins || 0) - (a.wins || 0);
             if ((b.scored || 0) !== (a.scored || 0)) return (b.scored || 0) - (a.scored || 0);
             if ((b.age || 0) !== (a.age || 0)) return (b.age || 0) - (a.age || 0);
@@ -4755,7 +4829,7 @@ window.calculateMVP = function(targetYear) {
         const rankLabel = ['1위','2위','3위'];
         overallGroup.slice(0, 3).forEach((player, i) => {
             addPoint(player.name, rankPts[i],
-                `[${rankLabel[i]}] ${matchTitle} 승점${player.pts}/득실${player.diff>=0?'+':''}${player.diff}`,
+                `[${rankLabel[i]}] ${matchTitle} 승점${player.pts}/득실${player.officialDiff>=0?'+':''}${player.officialDiff}`,
                 matchDate,
                 `${m.id}_overall_rank_v10_${i+1}_${player.name}`);
         });
@@ -5244,6 +5318,8 @@ window.calculateMVP = function(targetYear) {
                         const opTeam = inT1 ? g.t2 : g.t1;
                         const myScore = inT1 ? g.s1 : g.s2;
                         const opScore = inT1 ? g.s2 : g.s1;
+                        const myHandicap = inT1 ? (g.h1||0) : (g.h2||0);
+                        const opHandicap = inT1 ? (g.h2||0) : (g.h1||0);
                         const result = myScore > opScore ? '승' : myScore < opScore ? '패' : '무';
                         const resColor = result === '승' ? 'blue' : result === '패' ? 'red' : '#666';
 
@@ -5251,7 +5327,7 @@ window.calculateMVP = function(targetYear) {
                                     <div style="margin-bottom:2px; font-weight:bold;">${m.title}</div>
                                     <div style="display:flex; justify-content:space-between;">
                                         <span>파트너: ${myTeam.find(x=>x.name!==playerName)?.name || '-'}</span>
-                                        <span style="font-weight:bold; color:${resColor}">${result} (${myScore}:${opScore})</span>
+                                        <span style="font-weight:bold; color:${resColor}">${result} (${myScore}:${opScore})${(myHandicap||opHandicap)?` <small>핸디 +${myHandicap}:+${opHandicap}</small>`:''}</span>
                                     </div>
                                     <div style="font-size:0.8rem; color:#888;">vs ${opTeam.map(x=>x.name).join(', ')}</div>
                                  </div>`;
@@ -5451,9 +5527,9 @@ window.executeRestore = (data) => {
                 playedGames.forEach(g => {
                     html += `
                     <div class="folder-dashboard-game-row">
-                        <div style="width:40%; text-align:left;">${g.t1[0].name}, ${g.t1[1].name}</div>
+                        <div style="width:40%; text-align:left;">${g.t1[0].name}, ${g.t1[1].name}${(g.h1||0)>0?` <span class="handicap-badge">+${g.h1}</span>`:''}</div>
                         <div style="font-weight:bold; color:#1976d2; white-space:nowrap;">${g.s1} : ${g.s2}</div>
-                        <div style="width:40%; text-align:right;">${g.t2[0].name}, ${g.t2[1].name}</div>
+                        <div style="width:40%; text-align:right;">${(g.h2||0)>0?`<span class="handicap-badge">+${g.h2}</span> `:''}${g.t2[0].name}, ${g.t2[1].name}</div>
                     </div>`;
                 });
                 html += `</div>`;
