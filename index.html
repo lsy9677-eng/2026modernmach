@@ -343,6 +343,9 @@
         .player-handicap-btn { border:1px solid #ffb74d; background:#fff; color:#e65100; border-radius:9px; padding:2px 6px; font-size:0.72rem; font-weight:700; cursor:pointer; }
         .player-handicap-btn.active { background:#ff9800; color:#fff; border-color:#f57c00; }
         .handicap-badge { display:inline-block; margin-top:3px; padding:2px 7px; border-radius:10px; background:#fff3e0; color:#e65100; border:1px solid #ffcc80; font-size:0.7rem; font-weight:800; }
+        .match-tier-badge { display:inline-block; margin-left:4px; padding:1px 5px; border-radius:8px; background:#eef4ff; color:#345b9c; border:1px solid #c9d9f2; font-size:0.66rem; font-weight:800; white-space:nowrap; }
+        .tier-ranking-section { margin:10px 0 16px; padding:10px; border:1px solid #e4eaf2; border-radius:12px; background:#fafcff; }
+        .tier-ranking-title { margin:8px 0 4px; color:#345b9c; font-size:0.9rem; font-weight:800; }
         .match-handicap-box { display:flex; justify-content:center; align-items:center; gap:3px; margin-top:4px; }
         .match-handicap-box button { border:1px solid #ffb74d; background:#fff; color:#e65100; border-radius:8px; padding:2px 5px; font-size:0.68rem; font-weight:700; cursor:pointer; }
         .match-handicap-box button.active { background:#ff9800; color:#fff; }
@@ -1866,6 +1869,7 @@
                     <tbody id="gameRankingBody"></tbody>
                 </table>
             </div>
+            <div id="gameTierRankingArea"></div>
             
             <div id="tieBreakerBox" style="display:none;" class="tie-breaker-box">
                 <div style="font-weight:bold; color:#e65100; margin-bottom:5px; font-size:0.9rem;">⚠️ 동률 발생: 나이 입력 필요</div>
@@ -3034,6 +3038,50 @@ window.matchHistory = [];
         renderGameUI();
     }
 
+function resolveMatchPlayerTier(p) {
+    if(!p) return '';
+    if(p.tier && p.tier !== '기타' && p.tier !== '미배정') return p.tier;
+    const member = (window.allMembers || []).find(m =>
+        (p.phone && m.phone === p.phone) || (p.id && m.phone === p.id) || (m.name === p.name)
+    );
+    return member ? (window.rankingData?.tiers?.[member.phone] || '') : '';
+}
+
+function playerNameWithTier(p) {
+    const tier = resolveMatchPlayerTier(p);
+    return `${p?.name || '-'}${tier ? ` <span class="match-tier-badge">${tier}조</span>` : ''}`;
+}
+
+function sortMatchPlayers(players) {
+    return [...(players || [])].sort((a,b) => {
+        if((b.pts||0) !== (a.pts||0)) return (b.pts||0) - (a.pts||0);
+        if((b.diff||0) !== (a.diff||0)) return (b.diff||0) - (a.diff||0);
+        return (b.age||0) - (a.age||0);
+    });
+}
+
+function buildTierRankingHTML(players) {
+    const sorted = sortMatchPlayers(players);
+    const tiers = [...new Set(sorted.map(resolveMatchPlayerTier).filter(Boolean))];
+    if(tiers.length < 2) return '';
+    tiers.sort((a,b) => {
+        const ai = ACTIVE_TIERS.indexOf(a), bi = ACTIVE_TIERS.indexOf(b);
+        return (ai < 0 ? 999 : ai) - (bi < 0 ? 999 : bi);
+    });
+    let html = `<div class="tier-ranking-section"><div style="font-weight:900; color:#333; margin-bottom:6px;">📊 조별 순위</div>`;
+    tiers.forEach(tier => {
+        const group = sorted.filter(p => resolveMatchPlayerTier(p) === tier);
+        html += `<div class="tier-ranking-title">${tier}조 순위 (${group.length}명)</div>
+            <div class="mobile-table-wrap"><table class="result-table" style="margin:0 0 10px;">
+            <thead><tr><th>위</th><th>이름</th><th>승점</th><th>득실</th><th>승</th><th>무</th><th>패</th></tr></thead><tbody>`;
+        group.forEach((p,i) => {
+            html += `<tr class="${i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':''}"><td>${i+1}</td><td>${p.name}</td><td>${p.pts||0}</td><td>${p.diff||0}</td><td>${p.wins||0}</td><td>${p.draws||0}</td><td>${p.losses||0}</td></tr>`;
+        });
+        html += `</tbody></table></div>`;
+    });
+    return html + `</div>`;
+}
+
 function renderGameUI() {
     const div = document.getElementById('gameMatchList');
     const seedIcon = window.currentMatch.seedIcon || '👑';
@@ -3045,6 +3093,7 @@ function renderGameUI() {
         // [수정] 관리자일 경우 이름을 input 박스로 표시
         const renderPlayer = (p, teamNum, pIdx, align) => {
             const iconHtml = p.isSeed ? `<span class="seed-box">${seedIcon}</span>` : `<span class="seed-box"></span>`;
+            const tier = resolveMatchPlayerTier(p);
             if(window.isAdmin) {
                 return `
                 <div class="match-p-line p-${align}">
@@ -3052,10 +3101,11 @@ function renderGameUI() {
                     <input type="text" value="${p.name}" 
                         style="width:55px; font-size:0.8rem; border:1px solid #ddd; padding:2px; text-align:center;" 
                         onchange="editPlayerInMatch(${m.id}, ${teamNum}, ${pIdx}, this.value)">
+                    ${tier?`<span class="match-tier-badge">${tier}조</span>`:''}
                     ${align==='right'?iconHtml:''}
                 </div>`;
             }
-            return `<div class="match-p-line p-${align}">${align==='left'?iconHtml:''}<span class="name-box">${p.name}</span>${align==='right'?iconHtml:''}</div>`;
+            return `<div class="match-p-line p-${align}">${align==='left'?iconHtml:''}<span class="name-box">${playerNameWithTier(p)}</span>${align==='right'?iconHtml:''}</div>`;
         };
 
         return `
@@ -3236,12 +3286,15 @@ if (window.isAdmin) {
         const seedIcon = window.currentMatch.seedIcon || '👑';
         document.getElementById('gameRankingBody').innerHTML = sorted.map((p,i) => {
             const nameDisp = p.isSeed ? `${seedIcon} ${p.name}` : p.name;
+            const tier = resolveMatchPlayerTier(p);
             return `
             <tr class="${i<1?'rank-1':i<2?'rank-2':i<3?'rank-3':''}">
-                <td>${i+1}</td><td>${nameDisp}<span style="font-size:0.7rem; color:#666;">${p.age ? '('+p.age+')' : ''}</span></td>
+                <td>${i+1}</td><td>${nameDisp}${tier?` <span class="match-tier-badge">${tier}조</span>`:''}<span style="font-size:0.7rem; color:#666;">${p.age ? '('+p.age+')' : ''}</span></td>
                 <td>${p.wins}</td><td>${p.draws}</td><td>${p.losses}</td><td>${p.scored}</td><td>${p.conceded}</td><td style="color:${p.diff>0?'red':p.diff<0?'blue':'#333'}">${p.diff}</td><td style="font-weight:bold;">${p.pts}</td>
             </tr>
         `}).join('');
+        const tierArea = document.getElementById('gameTierRankingArea');
+        if(tierArea) tierArea.innerHTML = buildTierRankingHTML(sorted);
     }
 
     window.updatePlayerAge = (pid, val) => {
@@ -3604,11 +3657,7 @@ if (window.isAdmin) {
         const modal = document.getElementById('detailStatsModal');
         document.getElementById('detailTitle').innerText = `${m.date} - ${m.title}`;
         
-        const sorted = [...m.players].sort((a,b) => {
-             if(b.pts !== a.pts) return b.pts - a.pts;
-             if(b.diff !== a.diff) return b.diff - a.diff;
-             return (b.age || 0) - (a.age || 0);
-        });
+        const sorted = sortMatchPlayers(m.players);
         
         let html = `<h4 style="margin:5px 0 10px;">🏆 최종 순위</h4>
                     <table class="result-table" style="margin-bottom:15px;">
@@ -3616,16 +3665,18 @@ if (window.isAdmin) {
                         <tbody>`;
         sorted.forEach((p, i) => {
             let rankClass = (i===0)?'rank-1':(i===1)?'rank-2':(i===2)?'rank-3':'';
-            html += `<tr class="${rankClass}"><td>${i+1}</td><td>${p.name}${p.age?` <small>(${p.age})</small>`:''}</td><td>${p.pts}</td><td>${p.diff}</td><td>${p.wins||0}</td><td>${p.draws||0}</td><td>${p.losses}</td></tr>`;
+            const tier = resolveMatchPlayerTier(p);
+            html += `<tr class="${rankClass}"><td>${i+1}</td><td>${p.name}${tier?` <span class="match-tier-badge">${tier}조</span>`:''}${p.age?` <small>(${p.age})</small>`:''}</td><td>${p.pts}</td><td>${p.diff}</td><td>${p.wins||0}</td><td>${p.draws||0}</td><td>${p.losses}</td></tr>`;
         });
         html += `</tbody></table>`;
+        html += buildTierRankingHTML(sorted);
         html += `<h4 style="margin:15px 0 10px;">🎾 경기 기록</h4>`;
         m.matches.forEach((g, idx) => {
             if(!g.played) return;
             html += `<div style="background:#f9f9f9; padding:8px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; font-size:0.9rem;">
-                        <span style="width:40%; text-align:left;">${g.t1[0].name},${g.t1[1].name}${(g.h1||0)>0?` <span class="handicap-badge">+${g.h1}</span>`:''}</span>
+                        <span style="width:40%; text-align:left;">${playerNameWithTier(g.t1[0])}, ${playerNameWithTier(g.t1[1])}${(g.h1||0)>0?` <span class="handicap-badge">+${g.h1}</span>`:''}</span>
                         <span style="font-weight:bold;">${g.s1} : ${g.s2}</span>
-                        <span style="width:40%; text-align:right;">${(g.h2||0)>0?`<span class="handicap-badge">+${g.h2}</span> `:''}${g.t2[0].name},${g.t2[1].name}</span>
+                        <span style="width:40%; text-align:right;">${(g.h2||0)>0?`<span class="handicap-badge">+${g.h2}</span> `:''}${playerNameWithTier(g.t2[0])}, ${playerNameWithTier(g.t2[1])}</span>
                      </div>`;
         });
         
@@ -5486,11 +5537,7 @@ window.executeRestore = (data) => {
         let html = `<div class="folder-dashboard-summary">총 <b>${matches.length}개</b> 조의 경기 진행 현황입니다.</div>`;
 
         matches.forEach((m, idx) => {
-            const sortedPlayers = [...m.players].sort((a, b) => {
-                if (b.pts !== a.pts) return b.pts - a.pts;
-                if (b.diff !== a.diff) return b.diff - a.diff;
-                return (b.age || 0) - (a.age || 0);
-            });
+            const sortedPlayers = sortMatchPlayers(m.players);
 
             html += `
             <div class="card folder-dashboard-match-card">
@@ -5509,7 +5556,7 @@ window.executeRestore = (data) => {
                 const rankClass = (i===0)?'rank-1':(i===1)?'rank-2':(i===2)?'rank-3':'';
                 html += `<tr class="${rankClass}">
                             <td>${i+1}</td>
-                            <td style="font-weight:bold;">${p.name}</td>
+                            <td style="font-weight:bold;">${playerNameWithTier(p)}</td>
                             <td style="color:#d32f2f; font-weight:bold;">${p.pts}</td>
                             <td>${p.diff}</td>
                             <td>${p.wins}</td>
@@ -5518,6 +5565,7 @@ window.executeRestore = (data) => {
                          </tr>`;
             });
             html += `</tbody></table>`;
+            html += buildTierRankingHTML(sortedPlayers);
 
             const playedGames = (m.matches || []).filter(g => g.played);
             if (playedGames.length > 0) {
@@ -5527,9 +5575,9 @@ window.executeRestore = (data) => {
                 playedGames.forEach(g => {
                     html += `
                     <div class="folder-dashboard-game-row">
-                        <div style="width:40%; text-align:left;">${g.t1[0].name}, ${g.t1[1].name}${(g.h1||0)>0?` <span class="handicap-badge">+${g.h1}</span>`:''}</div>
+                        <div style="width:40%; text-align:left;">${playerNameWithTier(g.t1[0])}, ${playerNameWithTier(g.t1[1])}${(g.h1||0)>0?` <span class="handicap-badge">+${g.h1}</span>`:''}</div>
                         <div style="font-weight:bold; color:#1976d2; white-space:nowrap;">${g.s1} : ${g.s2}</div>
-                        <div style="width:40%; text-align:right;">${(g.h2||0)>0?`<span class="handicap-badge">+${g.h2}</span> `:''}${g.t2[0].name}, ${g.t2[1].name}</div>
+                        <div style="width:40%; text-align:right;">${(g.h2||0)>0?`<span class="handicap-badge">+${g.h2}</span> `:''}${playerNameWithTier(g.t2[0])}, ${playerNameWithTier(g.t2[1])}</div>
                     </div>`;
                 });
                 html += `</div>`;
@@ -5787,13 +5835,17 @@ window.editPlayerInMatch = (matchId, teamNum, pIdx, newName) => {
         phone: found.phone,
         name: found.name,
         age: found.age || 0,
-        isSeed: !!found.isSeed
+        isSeed: !!found.isSeed,
+        tier: window.rankingData?.tiers?.[found.phone] || '기타',
+        handicap: 0
       }
     : {
         id: 'manual_' + Date.now() + '_' + Math.random().toString(16).slice(2),
         name: newName,
         age: 0,
-        isSeed: false
+        isSeed: false,
+        tier: '기타',
+        handicap: 0
       };
 
   // 2) 매치 팀 배열(t1/t2)에서 선수 객체를 실제로 교체
