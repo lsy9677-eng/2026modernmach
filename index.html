@@ -2403,7 +2403,7 @@ window.matchHistory = [];
         12: [ [1,2,3,4], [5,6,7,8], [9,10,11,12], [1,5,2,6], [3,9,4,10], [7,11,8,12], [1,3,5,9], [2,4,6,10], [7,12,1,4], [8,11,2,3], [6,7,9,11], [5,8,10,12] ]
     };
     const AUTO_SEEDS = { 4: [], 5: [], 6: [1,3], 7: [1,5], 8: [1,7], 9: [1,4,8], 10: [1,8,10], 11: [1,5,8,9], 12: [1,6,9,12] };
-    const ALL_SEED_INFO = "6명:1,3 / 7명:1,5 / 8명:1,7 / 9명:1,4,8 / 10명:1,8,10";
+    const ALL_SEED_INFO = "4·5명: 시드 사용 불가 / 6명:1,3 / 7명:1,5 / 8명:1,7 / 9명:1,4,8 / 10명:1,8,10 / 11명:1,5,8,9 / 12명:1,6,9,12";
     const MIN_PLAYERS=4; const MAX_PLAYERS=12;
 
     // 뒤로가기 방지
@@ -2877,6 +2877,7 @@ window.matchHistory = [];
         if(cnt < MIN_PLAYERS || cnt > MAX_PLAYERS) return alert(`${MIN_PLAYERS}~${MAX_PLAYERS}명만 가능합니다.`);
         
         if(window.currentMatch.useSeed) {
+            if(cnt < 6) return alert("4명·5명 경기는 안전한 시드 배정 위치가 없어 시드 기능을 사용할 수 없습니다.\n시드를 OFF로 변경한 뒤 진행해주세요.");
             const req = (AUTO_SEEDS[cnt]||[]).length;
             const curr = window.currentMatch.players.filter(p=>p.isSeed).length;
             if(req > 0 && req !== curr) return alert(`${cnt}명일 경우 시드 배정자는 정확히 ${req}명이어야 합니다.`);
@@ -2976,13 +2977,13 @@ window.matchHistory = [];
             
             const timer = setInterval(() => {
                 const rnd = pool[Math.floor(Math.random()*pool.length)];
-                el.innerText = rnd.name;
+                el.innerText = ladderPlayerText(rnd);
             }, 80);
             
             setTimeout(() => {
                 clearInterval(timer);
                 el.classList.remove('spinning');
-                el.innerText = finalP.name;
+                el.innerText = ladderPlayerText(finalP);
                 el.style.fontWeight = "900";
                 el.style.color = "#333";
                 resolve();
@@ -3017,6 +3018,16 @@ window.matchHistory = [];
         });
         
         const schedule = FIXED_SCHEDULES[cnt];
+        if(window.currentMatch.useSeed) {
+            const badGame = schedule.findIndex(s => {
+                const team1 = [window.currentMatch.players[s[0]-1], window.currentMatch.players[s[1]-1]];
+                const team2 = [window.currentMatch.players[s[2]-1], window.currentMatch.players[s[3]-1]];
+                return team1.every(p => p?.isSeed) || team2.every(p => p?.isSeed);
+            });
+            if(badGame >= 0) {
+                return alert(`시드 선수끼리 같은 팀이 되는 대진이 발견되었습니다. (GAME ${badGame+1})\n안전을 위해 경기를 시작하지 않습니다. 다시 랜덤 추첨해주세요.`);
+            }
+        }
         const teamHandicap = team => Math.max(0, ...team.map(p => Math.max(0, Math.min(2, parseInt(p.handicap) || 0))));
         window.currentMatch.matches = schedule.map((s, i) => ({
             id: i, 
@@ -3049,7 +3060,15 @@ function resolveMatchPlayerTier(p) {
 
 function playerNameWithTier(p) {
     const tier = resolveMatchPlayerTier(p);
-    return `${p?.name || '-'}${tier ? ` <span class="match-tier-badge">${tier}조</span>` : ''}`;
+    const handicap = Math.max(0, Math.min(2, parseInt(p?.handicap) || 0));
+    return `${p?.name || '-'}${tier ? ` <span class="match-tier-badge">${tier}조</span>` : ''}${handicap ? ` <span class="handicap-badge">개인 +${handicap}</span>` : ''}`;
+}
+
+function ladderPlayerText(p) {
+    if(!p) return '-';
+    const tier = resolveMatchPlayerTier(p);
+    const handicap = Math.max(0, Math.min(2, parseInt(p.handicap) || 0));
+    return `${p.name}${tier ? ` [${tier}조]` : ''}${handicap ? ` [핸디 +${handicap}]` : ''}`;
 }
 
 function sortMatchPlayers(players) {
@@ -3075,7 +3094,7 @@ function buildTierRankingHTML(players) {
             <div class="mobile-table-wrap"><table class="result-table" style="margin:0 0 10px;">
             <thead><tr><th>위</th><th>이름</th><th>승점</th><th>득실</th><th>승</th><th>무</th><th>패</th></tr></thead><tbody>`;
         group.forEach((p,i) => {
-            html += `<tr class="${i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':''}"><td>${i+1}</td><td>${p.name}</td><td>${p.pts||0}</td><td>${p.diff||0}</td><td>${p.wins||0}</td><td>${p.draws||0}</td><td>${p.losses||0}</td></tr>`;
+            html += `<tr class="${i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':''}"><td>${i+1}</td><td>${playerNameWithTier(p)}</td><td>${p.pts||0}</td><td>${p.diff||0}</td><td>${p.wins||0}</td><td>${p.draws||0}</td><td>${p.losses||0}</td></tr>`;
         });
         html += `</tbody></table></div>`;
     });
@@ -3094,6 +3113,7 @@ function renderGameUI() {
         const renderPlayer = (p, teamNum, pIdx, align) => {
             const iconHtml = p.isSeed ? `<span class="seed-box">${seedIcon}</span>` : `<span class="seed-box"></span>`;
             const tier = resolveMatchPlayerTier(p);
+            const playerHandicap = Math.max(0, Math.min(2, parseInt(p.handicap) || 0));
             if(window.isAdmin) {
                 return `
                 <div class="match-p-line p-${align}">
@@ -3102,6 +3122,7 @@ function renderGameUI() {
                         style="width:55px; font-size:0.8rem; border:1px solid #ddd; padding:2px; text-align:center;" 
                         onchange="editPlayerInMatch(${m.id}, ${teamNum}, ${pIdx}, this.value)">
                     ${tier?`<span class="match-tier-badge">${tier}조</span>`:''}
+                    ${playerHandicap?`<span class="handicap-badge">개인 +${playerHandicap}</span>`:''}
                     ${align==='right'?iconHtml:''}
                 </div>`;
             }
@@ -3285,11 +3306,10 @@ if (window.isAdmin) {
 
         const seedIcon = window.currentMatch.seedIcon || '👑';
         document.getElementById('gameRankingBody').innerHTML = sorted.map((p,i) => {
-            const nameDisp = p.isSeed ? `${seedIcon} ${p.name}` : p.name;
-            const tier = resolveMatchPlayerTier(p);
+            const nameDisp = `${p.isSeed ? seedIcon+' ' : ''}${playerNameWithTier(p)}`;
             return `
             <tr class="${i<1?'rank-1':i<2?'rank-2':i<3?'rank-3':''}">
-                <td>${i+1}</td><td>${nameDisp}${tier?` <span class="match-tier-badge">${tier}조</span>`:''}<span style="font-size:0.7rem; color:#666;">${p.age ? '('+p.age+')' : ''}</span></td>
+                <td>${i+1}</td><td>${nameDisp}<span style="font-size:0.7rem; color:#666;">${p.age ? '('+p.age+')' : ''}</span></td>
                 <td>${p.wins}</td><td>${p.draws}</td><td>${p.losses}</td><td>${p.scored}</td><td>${p.conceded}</td><td style="color:${p.diff>0?'red':p.diff<0?'blue':'#333'}">${p.diff}</td><td style="font-weight:bold;">${p.pts}</td>
             </tr>
         `}).join('');
@@ -3665,8 +3685,7 @@ if (window.isAdmin) {
                         <tbody>`;
         sorted.forEach((p, i) => {
             let rankClass = (i===0)?'rank-1':(i===1)?'rank-2':(i===2)?'rank-3':'';
-            const tier = resolveMatchPlayerTier(p);
-            html += `<tr class="${rankClass}"><td>${i+1}</td><td>${p.name}${tier?` <span class="match-tier-badge">${tier}조</span>`:''}${p.age?` <small>(${p.age})</small>`:''}</td><td>${p.pts}</td><td>${p.diff}</td><td>${p.wins||0}</td><td>${p.draws||0}</td><td>${p.losses}</td></tr>`;
+            html += `<tr class="${rankClass}"><td>${i+1}</td><td>${playerNameWithTier(p)}${p.age?` <small>(${p.age})</small>`:''}</td><td>${p.pts}</td><td>${p.diff}</td><td>${p.wins||0}</td><td>${p.draws||0}</td><td>${p.losses}</td></tr>`;
         });
         html += `</tbody></table>`;
         html += buildTierRankingHTML(sorted);
@@ -5716,7 +5735,7 @@ window.saveAttendance = () => {
 window.playSequentialOrder = () => {
     // 1. 시드 시스템 사용 여부 확인
     if(window.currentMatch.useSeed) {
-        if(!confirm("⚠️ 시드 시스템이 켜져 있습니다.\n순서대로 진행하면 입력한 순서가 곧 번호가 됩니다.\n계속하시겠습니까?")) return;
+        return alert("⚠️ 시드 시스템이 켜져 있어 '입력 순서로 시작'을 사용할 수 없습니다.\n시드 간 같은 페어를 방지하려면 랜덤 추첨을 이용해주세요.\n입력 순서로 진행하려면 시드 시스템을 OFF로 변경하세요.");
     }
 
     // 2. 입력된 순서대로 1번부터 번호 부여
